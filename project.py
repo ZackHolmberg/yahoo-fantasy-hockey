@@ -54,7 +54,8 @@ def main():
         for pid, s in summ.items():
             fp = skater_season_fp(s, rt.get(pid, {}), fo.get(pid, {}))
             p = players[pid]
-            p.update(name=s["skaterFullName"], pos=POS[s["positionCode"]], team=s["teamAbbrevs"].split(",")[-1])
+            if "name" not in p:
+                p.update(name=s["skaterFullName"], pos=POS[s["positionCode"]], team=s["teamAbbrevs"].split(",")[-1])
             if season == "20252026" or "last" not in p:
                 p["last"] = dict(season=season, gp=s["gamesPlayed"], g=s["goals"], a=s["assists"], sog=s["shots"],
                                  hit=rt.get(pid, {}).get("hits"), blk=rt.get(pid, {}).get("blockedShots"),
@@ -62,7 +63,8 @@ def main():
             p["seasons"].append((w, s["gamesPlayed"], fp, season))
         for pid, g in load("goalie", "summary", season).items():
             p = players[pid]
-            p.update(name=g["goalieFullName"], pos="G", team=g["teamAbbrevs"].split(",")[-1])
+            if "name" not in p:
+                p.update(name=g["goalieFullName"], pos="G", team=g["teamAbbrevs"].split(",")[-1])
             if season == "20252026" or "last" not in p:
                 p["last"] = dict(season=season, gp=g["gamesPlayed"], gs=g["gamesStarted"], w=g["wins"],
                                  svp=g["savePct"], gaa=g["goalsAgainstAverage"], sv=g["saves"])
@@ -71,6 +73,10 @@ def main():
     # Manual overrides from offseason research: {name: {team, proj_gp, fpg_mult, note}}
     adj_path = Path("data/adjustments.json")
     adjustments = json.loads(adj_path.read_text()) if adj_path.exists() else {}
+
+    known = {p.get("name") for p in players.values()}
+    for missing in sorted(set(adjustments) - known):
+        print(f"WARNING: adjustment for unknown player {missing!r}")
 
     out = []
     for pid, p in players.items():
