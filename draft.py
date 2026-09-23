@@ -54,7 +54,11 @@ def best(rankings, state, n=15):
     have = {p: 0 for p in STARTERS}
     for m in state["mine"]:
         have[pos_of[m]] += 1
-    avail = [r for r in rankings if r["name"] not in gone]
+    # only one goalie starts per day: discount 2nd/3rd goalies (backtest-neutral, avoids goalie hoarding)
+    gmult = (1.0, 0.5, 0.2, 0.0)[min(have["G"], 3)]
+    avail = [dict(r, vor=float(r["vor"]) * (gmult if r["pos"] == "G" else 1.0))
+             for r in rankings if r["name"] not in gone]
+    avail.sort(key=lambda r: -r["vor"])
     picks_made = len(state["taken"]) + len(state["mine"])
     print(f"Pick #{picks_made + 1} overall | my roster ({len(state['mine'])}/{ROSTER_SIZE}): "
           + ", ".join(f"{m} ({pos_of[m]})" for m in state["mine"]) if state["mine"] else f"Pick #{picks_made + 1} overall | my roster: empty")

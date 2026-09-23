@@ -93,6 +93,11 @@ def choose(strategy, avail, roster, picks_left, rnd, rng):
         if (ng == 0 and rnd >= 3) or (ng == 1 and rnd >= 8):
             cands = [r for r in cands if r["pos"] == "G"] or cands
         key = lambda r: r["vor"]
+    elif strategy == "vor_gdisc":
+        # value a goalie by how much of him actually reaches the single G slot
+        ng = sum(r["pos"] == "G" for r in roster)
+        mult = (1.0, 0.5, 0.2, 0.0)[min(ng, 3)]
+        key = lambda r: r["vor"] * mult if r["pos"] == "G" else r["vor"]
     elif strategy == "raw":
         key = lambda r: r["proj"]
     elif strategy == "public":
