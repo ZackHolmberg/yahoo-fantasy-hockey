@@ -1,6 +1,7 @@
 """One-time Yahoo OAuth2 authorization, split into two non-interactive steps.
 
-    python auth.py url           # print the Yahoo login URL
+    python auth.py url           # print the Yahoo login URL (requests scope fspt-r)
+    python auth.py url noscope   # same, without an explicit scope (try if a fresh app still gets 403)
     python auth.py <code>        # exchange the code from the redirect for tokens
 
 Tokens are written back into oauth2.json (gitignored) in the format yahoo_oauth
@@ -25,7 +26,7 @@ def load():
 
 
 def main():
-    if len(sys.argv) != 2:
+    if len(sys.argv) not in (2, 3):
         sys.exit(__doc__)
     creds = load()
     redirect = creds.get("callback_uri", "https://localhost:8080")
@@ -37,6 +38,8 @@ def main():
             "response_type": "code",
             "scope": "fspt-r",  # Fantasy Sports read; not always granted implicitly
         }
+        if sys.argv[2:] == ["noscope"]:
+            del params["scope"]
         print(f"{AUTH_URL}?{urlencode(params)}")
         return
 

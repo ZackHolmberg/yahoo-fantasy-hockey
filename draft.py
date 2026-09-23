@@ -52,7 +52,14 @@ def resolve(name, rankings):
     return None
 
 
+def load_eligibility():
+    """Yahoo eligible positions from `yahoo_sync.py eligibility`, if cached."""
+    path = Path("data/yahoo_eligibility.json")
+    return json.loads(path.read_text()) if path.exists() else {}
+
+
 def best(rankings, state, n=15):
+    elig = load_eligibility()
     gone = set(state["taken"]) | set(state["mine"])
     pos_of = {r["name"]: r["pos"] for r in rankings}
     have = {p: 0 for p in STARTERS}
@@ -63,7 +70,7 @@ def best(rankings, state, n=15):
     avail = [dict(r, vor=float(r["vor"]) * (gmult if r["pos"] == "G" else 1.0))
              for r in rankings if r["name"] not in gone]
     avail.sort(key=lambda r: -r["vor"])
-    picks_made = len(state["taken"]) + len(state["mine"])
+    picks_made = len(state["taken"]) + len(state["mine"]) + len(state.get("unranked", []))
     print(f"Pick #{picks_made + 1} overall | my roster ({len(state['mine'])}/{ROSTER_SIZE}): "
           + ", ".join(f"{m} ({pos_of[m]})" for m in state["mine"]) if state["mine"] else f"Pick #{picks_made + 1} overall | my roster: empty")
     need = {p: max(0, STARTERS[p] - have[p]) for p in STARTERS}
@@ -71,9 +78,11 @@ def best(rankings, state, n=15):
           "| have:", have)
     print(f"\nBest available overall (VOR):")
     for r in avail[:n]:
-        flag = "  <- NEED" if need[r["pos"]] else ("" if have[r["pos"]] < TARGET[r["pos"]] else "  (deep at pos)")
+        yp = elig.get(r["name"]) or [r["pos"]]
+        flag = "  <- NEED" if any(need.get(p) for p in yp) else ("" if have[r["pos"]] < TARGET[r["pos"]] else "  (deep at pos)")
         note = f"  [{r['note']}]" if r.get("note") else ""
-        print(f"  {r['rank']:>4} {r['name']:24} {r['pos_rank']:5} {r['team']:4} FP {float(r['proj_fp']):6.0f} VOR {float(r['vor']):6.1f}{flag}{note}")
+        yahoo = f"  Yahoo:{'/'.join(yp)}" if len(yp) > 1 else ""
+        print(f"  {r['rank']:>4} {r['name']:24} {r['pos_rank']:5} {r['team']:4} FP {float(r['proj_fp']):6.0f} VOR {float(r['vor']):6.1f}{flag}{yahoo}{note}")
     print("\nTop 3 by position:")
     for p in STARTERS:
         top = [r for r in avail if r["pos"] == p][:3]
