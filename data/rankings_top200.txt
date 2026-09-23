@@ -1,4 +1,3 @@
-WARNING: adjustment for unknown player '_comment'
 replacement FP: {'D': 266.5, 'RW': 319.9, 'LW': 305.9, 'C': 425.4, 'G': 308.8}
   1 Nikita Kucherov          RW1   TBL  FP  644.8 VOR  324.9 FP/G  8.44 GP 76 | 2026 GP76 44G 86A 231SOG 36H 29B 0FW 20.3toi
   2 Nathan MacKinnon         C1    COL  FP  748.1 VOR  322.7 FP/G  9.37 GP 80 | 2026 GP80 53G 74A 350SOG 64H 35B 681FW 22.3toi

@@ -75,7 +75,7 @@ def main():
     adjustments = json.loads(adj_path.read_text()) if adj_path.exists() else {}
 
     known = {p.get("name") for p in players.values()}
-    for missing in sorted(set(adjustments) - known):
+    for missing in sorted(k for k in set(adjustments) - known if not k.startswith("_")):
         print(f"WARNING: adjustment for unknown player {missing!r}")
 
     out = []
