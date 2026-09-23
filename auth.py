@@ -31,7 +31,12 @@ def main():
     redirect = creds.get("callback_uri", "https://localhost:8080")
 
     if sys.argv[1] == "url":
-        params = {"client_id": creds["consumer_key"], "redirect_uri": redirect, "response_type": "code"}
+        params = {
+            "client_id": creds["consumer_key"],
+            "redirect_uri": redirect,
+            "response_type": "code",
+            "scope": "fspt-r",  # Fantasy Sports read; not always granted implicitly
+        }
         print(f"{AUTH_URL}?{urlencode(params)}")
         return
 
