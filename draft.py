@@ -4,6 +4,10 @@
     python draft.py mine "Name"                       # my pick
     python draft.py undo "Name"                       # remove a mistaken entry
     python draft.py best [N]                          # best available + my roster needs
+    pbpaste | python draft.py paste                   # mark every player found in pasted text as taken
+    python draft.py reset                             # clear state before a new draft
+
+Stdlib only: runs with any python3, no venv needed.
 
 Names are fuzzy-matched against data/rankings.csv. State lives in data/draft_state.json.
 """
@@ -96,6 +100,20 @@ def main():
                 state[cmd].append(name)
                 print(f"  {cmd}: {name}")
         STATE.write_text(json.dumps(state, indent=2))
+        print()
+        best(rankings, state, 10)
+    elif cmd == "paste":
+        # Yahoo draft-results text in any layout: match every known player name that appears in it.
+        text = norm(sys.stdin.read())
+        mine = set(state["mine"])
+        found = [r["name"] for r in rankings if norm(r["name"]) in text]
+        new = [n for n in found if n not in mine and n not in state["taken"]]
+        state["taken"] += new
+        STATE.write_text(json.dumps(state, indent=2))
+        print(f"  matched {len(found)} players in paste, {len(new)} newly marked taken")
+        if mine & set(found):
+            print("  (skipped my own players:", ", ".join(sorted(mine & set(found))) + ")")
+        print("  NOTE: rookies/players without NHL history aren't in rankings and are ignored.")
         print()
         best(rankings, state, 10)
     elif cmd == "reset":

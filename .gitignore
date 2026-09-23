@@ -8,6 +8,7 @@ oauth2.json
 __pycache__/
 *.pyc
 
-# Local data dumps
-data/raw/
 .DS_Store
+
+# Live draft state (regenerated each draft)
+data/draft_state.json
