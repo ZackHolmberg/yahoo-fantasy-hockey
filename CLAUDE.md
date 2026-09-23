@@ -5,22 +5,19 @@ You (Claude) are helping the owner draft and manage a team in **Yahoo league 234
 ## Division of labor during the draft
 There is no browser automation: the owner clicks picks in Yahoo, and you track the draft and recommend. Keep replies **short and fast**: one pick plus one backup and a few words of reasoning. The owner has 75 seconds.
 
-## Preferred path: Yahoo API sync
-The owner plans to set up a **fresh Yahoo app** on the draft machine before the draft (the first app got a 403 on every Fantasy endpoint; see "Yahoo API setup" below). If `yahoo_sync.py check` succeeds, use the API path. The owner doesn't need to relay picks at all.
+## Draft-night path: paste Draft Results (primary)
+The Yahoo API is **blocked for unapproved apps** (every Fantasy endpoint returns 403 since 2026-07-22; see `docs/yahoo_api_notes.md`). Creating a new app does not help; only Yahoo's manual approval does. So the paste workflow below is the plan for the draft.
+
+Still, if the owner has a venv and `oauth2.json` on this machine, spend **30 seconds** on `.venv/bin/python yahoo_sync.py check` at the start. If it prints `OK: API access works` (the approval came through), use the API path instead:
 
 ```sh
-.venv/bin/python yahoo_sync.py check         # first: confirms auth, league settings, owner's team
-.venv/bin/python yahoo_sync.py eligibility   # once before the draft: caches Yahoo C/LW/RW eligibility
+.venv/bin/python yahoo_sync.py eligibility   # once: caches Yahoo C/LW/RW eligibility
 .venv/bin/python yahoo_sync.py sync          # each turn: rebuilds state from Yahoo, shows slot, "MY TURN NOW", best available
 ```
 
-- `sync` is idempotent (it rebuilds `data/draft_state.json` from Yahoo), so run it whenever the owner says "my turn", or before every recommendation.
-- It knows the owner's team from the logged-in account, so there's no need to ask which picks are theirs. It also reports the draft slot once Yahoo sets the order.
-- Optional: poll `sync` every ~10–15 s in the background (e.g. with the Monitor tool) and alert the owner when it prints `MY TURN NOW` or they're 2 picks away.
-- Drafted players missing from our rankings (rookies) are listed as "not in rankings" but still count toward pick numbers.
-- The sync success path was only tested against a mock (the real API was 403 at the time). If it throws anything other than the 403 message, don't debug during the draft: switch to the fallback immediately.
+`sync` is idempotent and knows the owner's team from the login. It was only tested against a mock, so on any unexpected error, drop back to paste immediately and don't debug during the draft. Don't poll faster than every ~10–15 s (Yahoo throttles per app).
 
-## Fallback: paste Draft Results
+## Paste workflow
 All commands run from the repo root with plain `python3`, no venv needed.
 
 ```sh
@@ -56,7 +53,8 @@ python3 draft.py best 20                     # best available by VOR + unfilled 
 | `project.py` | Builds rankings from `data/raw/` + adjustments (stdlib) |
 | `cheatsheet.py` | Rebuilds DRAFT_SHEET.md from rankings.csv |
 | `draft.py` | Live tracker (stdlib) |
-| `yahoo_sync.py` | **Preferred:** Yahoo API check / draft sync / eligibility (needs venv + oauth2.json) |
+| `yahoo_sync.py` | Yahoo API check / draft sync / eligibility (blocked until Yahoo approves the app) |
+| `docs/yahoo_api_notes.md` | Why the API is blocked, how to get approved, gotchas after approval |
 | `backtest.py`, `data/backtest_results.txt` | Draft simulation on 2024-25 and 2025-26 |
 | `fetch_stats.py` | Pulls NHL stats API data into `data/raw/` (needs `requests`) |
 | `auth.py` | Yahoo OAuth, two steps (`url` [noscope], then `<code>`) |
@@ -68,18 +66,13 @@ To apply late news, edit `data/adjustments.json`, then run `python3 project.py >
 - Replacement ranks: C/LW/RW 30, D 56, G 26.
 - **Backtest** (bots in a 12-team snake draft, scored on actual season totals): won the league 60–76% of simulations vs an 8% baseline, top 3 in 85–99%, from every draft slot. Caveats: the opponents are bots, not humans; it measures season totals, not H2H weekly matchups; and it has no dual eligibility. The real edge is smaller but real: most managers underweight hits, blocks, faceoffs and saves.
 
-## Yahoo API setup (do this on the draft machine before the draft)
-History: on the first machine OAuth worked, but every Fantasy endpoint (even `game/nhl` and `users;use_login=1/games`) returned 403 "This application is not authorized to perform this action". That happened both without and with `scope=fspt-r`, even though "Fantasy Sports: Read" was checked on the app. The likely cause is an app whose permissions didn't take. The old app (ID `yCxtir99`) should be deleted; its secret was exposed in a chat transcript.
-
-Steps:
-1. https://developer.yahoo.com/apps/create/ → **Confidential Client**, Redirect URI **`https://localhost:8080`** (Yahoo rejects `oob`), API permissions: check **Fantasy Sports → Read** *during creation*. Leave OpenID unchecked.
-2. `uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt` (Python 3.14's venv/ensurepip was broken on the old machine; 3.12 works).
-3. The owner creates the gitignored `oauth2.json` themselves (don't ask them to paste secrets into chat):
-   `{"consumer_key": "...", "consumer_secret": "...", "callback_uri": "https://localhost:8080"}`
-4. `.venv/bin/python auth.py url` → owner opens it, approves, and the browser lands on a dead `https://localhost:8080/?code=...` page (expected) → `.venv/bin/python auth.py <code>`. Codes expire in minutes.
-5. `.venv/bin/python yahoo_sync.py check`. If it's still 403, retry step 4 with `auth.py url noscope`. If still 403, **stop and use the paste fallback**; don't burn pre-draft time.
-
-Tokens refresh automatically via `yahoo_oauth`, which rewrites `oauth2.json`.
+## Yahoo API status
+Blocked pending Yahoo approval. Full details and the post-approval gotchas are in `docs/yahoo_api_notes.md`.
+- OAuth works (`auth.py`), but every Fantasy endpoint returns 403 "This application is not authorized to perform this action". That happens to every unapproved app since 2026-07-22, including new apps and whatever scope is requested.
+- Fix: the owner applies at https://sports.yahoo.com/developer/access/ (personal, single-league, read-only, Small; include the Client ID). There's no published turnaround.
+- The old app ID `yCxtir99` is the one to get approved. Its secret was pasted in a chat transcript; regenerate it if the console allows.
+- Once approved: set up the venv (`uv venv --python 3.12 .venv && uv pip install --python .venv/bin/python -r requirements.txt`). The owner creates the gitignored `oauth2.json` (`consumer_key`, `consumer_secret`, `"callback_uri": "https://localhost:8080"`). Then run `auth.py url`, then `auth.py <code>`, then `yahoo_sync.py check`.
+- In-season, consider https://github.com/spilchen/yahoo_fantasy_mcp (read-only MCP tools for rosters, free agents and waivers; same auth; no draft tools).
 
 ## Repo conventions
 - Private repo `github.com/ZackHolmberg/yahoo-fantasy-hockey`. This is the owner's **personal** GitHub. Commit as `Zack Holmberg <zack_holmberg@outlook.com>`, set per-repo (`git config user.email`), never a work identity.

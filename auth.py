@@ -59,6 +59,8 @@ def main():
         token_type=tok["token_type"],
         token_time=time.time(),
     )
+    if tok.get("xoauth_yahoo_guid"):
+        creds["guid"] = tok["xoauth_yahoo_guid"]  # yahoo_oauth / yahoo_fantasy_mcp token format
     with open(CREDS_FILE, "w") as f:
         json.dump(creds, f, indent=2)
     print("Authorized. Tokens saved to oauth2.json.")

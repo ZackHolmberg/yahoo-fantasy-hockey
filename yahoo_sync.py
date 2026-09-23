@@ -41,8 +41,10 @@ def connect():
 def explain(e):
     msg = str(e)
     if "not authorized" in msg:
-        sys.exit("Yahoo 403 'not authorized'. The app lacks Fantasy access (see CLAUDE.md > Yahoo API).\n"
+        sys.exit("Yahoo 403 'not authorized': app not approved for Fantasy access (docs/yahoo_api_notes.md).\n"
                  "Fallback: pbpaste | python3 draft.py paste")
+    if "Request denied" in msg or "999" in msg:
+        sys.exit("Yahoo is throttling this app (Request denied/999). Stop polling for a few minutes; use paste meanwhile.")
     raise e
 
 
