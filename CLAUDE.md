@@ -3,10 +3,31 @@
 You (Claude) are helping the owner draft and manage a team in **Yahoo league 23491**. The live draft is **Wed Sep 23, 2026, 6:00pm EDT**, with **75 seconds per pick**, 12 teams, snake order. Full settings are in `docs/LEAGUE.md`. Read it first. It's H2H points, one G slot, and hits/blocks/faceoffs/saves score heavily.
 
 ## Division of labor during the draft
-There is no browser automation: the owner clicks picks in Yahoo, and you track the draft and recommend. Keep replies **short and fast**: one pick plus one backup and a few words of reasoning. The owner has 75 seconds.
+**Plan A: browser-driven.** You read the Yahoo draft room and make the owner's picks through the Claude in Chrome extension, with the owner watching and able to override. **Plan B: paste.** If the browser tools aren't connected or misbehave, the owner clicks and pastes Draft Results; you recommend one pick plus one backup, fast. The owner has 75 seconds per pick either way.
 
-## Draft-night path: paste Draft Results (primary)
-The Yahoo API is **blocked for unapproved apps** (every Fantasy endpoint returns 403 since 2026-07-22; see `docs/yahoo_api_notes.md`). Creating a new app does not help; only Yahoo's manual approval does. So the paste workflow below is the plan for the draft.
+## Plan A: browser-driven draft
+Setup on this machine (the owner does it before the draft):
+1. Install the Claude in Chrome extension in Chrome, then run `/chrome` in Claude Code to connect. Browser tools are Chrome only; there's no Firefox extension.
+2. Invoke the `claude-in-chrome` skill before using any browser tool.
+3. The owner opens the Yahoo draft room (league 23491 → Draft) in Chrome and leaves that tab alone.
+4. **Rehearse** in a Yahoo mock draft lobby first, if time allows (Yahoo Fantasy Hockey → Mock Draft). Do 2–3 picks end to end: read the board, sync the tracker, search for the player, click Draft, confirm. Learn the page layout there, not in the real draft.
+5. Belt and braces: have the owner put ~15 top targets in the Yahoo **draft queue** before the draft. If a pick times out, Yahoo autopicks from the queue, not from its default rankings.
+
+Loop for every pick:
+1. **Sync:** read the draft room's Draft Results or pick list (page text), save it to a temp file, and run `python3 draft.py paste < file`. Record the owner's own picks with `python3 draft.py mine "Name"`. Identify them from the owner's team name in the draft room.
+2. **Decide** from `python3 draft.py best 20` plus the "How to pick" rules. Do it while other teams are picking, so the choice is ready before the owner's turn starts.
+3. **Execute** when it's the owner's turn: use the draft room's player search, type the player's name, and **verify the exact name, team and position in the result row** before clicking Draft. If the top choice was just taken, use the prepared backup.
+4. **Confirm:** re-read the page, check the pick registered to the owner's team, run `draft.py mine`, and tell the owner in one line ("Took X (pos, team). Next pick #N.").
+
+Safety rules (non-negotiable):
+- Never click Draft on a row you haven't verified by name. Two Elias Petterssons and two Sebastian Ahos exist; check position and team.
+- **Time budget:** if the pick isn't clicked with ~25 s left on Yahoo's clock, stop, tell the owner "pick X now" and let them click. A late human pick beats a wrong or autopicked one.
+- Don't click anything else in the draft room: no trades, no settings, no leaving the room. Never dismiss dialogs you don't understand; ask the owner.
+- If the page layout confuses you, or the browser tools error twice in a row, switch to Plan B immediately.
+- Caveat for the owner: automating Yahoo pages may conflict with Yahoo's terms of use. The owner has chosen to accept that; keep the automation to their own picks at human pace.
+
+## Plan B: paste Draft Results
+The Yahoo API is **blocked for unapproved apps** (every Fantasy endpoint returns 403 since 2026-07-22; see `docs/yahoo_api_notes.md`). Creating a new app does not help; only Yahoo's manual approval does. So draft tracking comes from the browser (Plan A) or owner pastes (Plan B).
 
 Still, if the owner has a venv and `oauth2.json` on this machine, spend **30 seconds** on `.venv/bin/python yahoo_sync.py check` at the start. If it prints `OK: API access works` (the approval came through), use the API path instead:
 
@@ -17,7 +38,7 @@ Still, if the owner has a venv and `oauth2.json` on this machine, spend **30 sec
 
 `sync` is idempotent and knows the owner's team from the login. It was only tested against a mock, so on any unexpected error, drop back to paste immediately and don't debug during the draft. Don't poll faster than every ~10–15 s (Yahoo throttles per app).
 
-## Paste workflow
+## Paste workflow (used by both plans for tracker sync)
 All commands run from the repo root with plain `python3`, no venv needed.
 
 ```sh

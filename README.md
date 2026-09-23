@@ -10,7 +10,14 @@ git config user.name "Zack Holmberg" && git config user.email "zack_holmberg@out
 python3 draft.py reset && python3 draft.py best 5     # smoke test; needs only python3
 ```
 
-### Draft night: paste Draft Results (no setup needed)
+### Draft night, Plan A: Claude drives the draft room in Chrome
+1. Install the **Claude in Chrome** extension in Chrome (Chrome only; no Firefox extension), start `claude` in this repo, and run `/chrome` to connect.
+2. Open the Yahoo draft room for league 23491 in Chrome.
+3. If time allows, rehearse a few picks in a Yahoo **mock draft** first.
+4. Put ~15 top targets in your Yahoo draft queue, so a timed-out pick autopicks sensibly.
+5. Watch every pick. Claude hands a pick back to you if it's running out of time (about 25 seconds left).
+
+### Draft night, Plan B: paste Draft Results (no setup needed)
 Copy Yahoo's Draft Results list and paste it to Claude before each of your picks. It runs `python3 draft.py paste` and replies with a pick and a backup.
 
 ### Yahoo API: blocked until Yahoo approves the app
@@ -24,7 +31,7 @@ After approval, follow "Yahoo API status" in `CLAUDE.md`. Details are in `docs/y
 claude
 ```
 
-> Read CLAUDE.md. We're drafting now. My team name is __ and my draft slot is __. I'll paste Yahoo's Draft Results before each of my picks; give me one pick and a backup, fast.
+> Read CLAUDE.md. We're drafting now with Plan A (browser). My team name is __ and my draft slot is __. The draft room is open in Chrome. Rehearse in the mock draft tab first if it's open.
 
 ## Refreshing data (optional)
 
