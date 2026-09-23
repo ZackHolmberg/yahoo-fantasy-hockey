@@ -1,0 +1,13 @@
+# Secrets — never commit
+oauth2.json
+*.token.json
+.env
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Local data dumps
+data/raw/
+.DS_Store
