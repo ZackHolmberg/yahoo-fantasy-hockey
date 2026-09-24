@@ -1,6 +1,11 @@
-# Yahoo fantasy hockey: draft co-pilot
+# Yahoo fantasy hockey: draft co-pilot and in-season manager
 
-You (Claude) are helping the owner draft and manage a team in **Yahoo league 23491**. The live draft is **Wed Sep 23, 2026, 6:00pm EDT**, with **75 seconds per pick**, 12 teams, snake order. Full settings are in `docs/LEAGUE.md`. Read it first. It's H2H points, one G slot, and hits/blocks/faceoffs/saves score heavily.
+You (Claude) are helping the owner draft and manage a team in **Yahoo league 23491**. Full settings are in `docs/LEAGUE.md`. Read it first. It's H2H points, one G slot, and hits/blocks/faceoffs/saves score heavily.
+
+## In-season (current phase)
+The draft is done (Sep 23, 2026). The owner's team is **Suzuki For Hart** (drafted 8th). The season starts Tue Sep 29. Claude manages the team daily per **`docs/MANAGER.md`**: headless runs at 11:30 and 18:15 ET via launchd, and the owner talks to Claude by iMessage. That runbook's authority table decides what Claude may do alone (lineups, IR moves, `AUTO-OK` add/drops) and what needs the owner (trades, goalie swaps, anything else). If the owner says "manage the team" in a session, follow the same runbook.
+
+The draft sections below are kept for next season.
 
 ## Division of labor during the draft
 **Plan A: browser-driven.** You read the Yahoo draft room and make the owner's picks through the Claude in Chrome extension, with the owner watching and able to override. **Plan B: paste.** If the browser tools aren't connected or misbehave, the owner clicks and pastes Draft Results; you recommend one pick plus one backup, fast. The owner has 75 seconds per pick either way.
@@ -59,7 +64,7 @@ python3 draft.py best 20                     # best available by VOR + unfilled 
 1. Start from `draft.py best`, which sorts by VOR (value over replacement at the position). The 2nd and 3rd goalies are already discounted (x0.5, x0.2), because only one G starts per day.
 2. **Market timing (judgment, not backtested):** when the top candidates are within ~15 VOR, take the one the market will grab sooner (see ADP in `docs/research_2026-09-23.md`). Players we rank far above ADP (Seider, Weegar, Sherwood, Cuylle, Greaves, Hofer, Dobes) can often wait a round.
 3. **Yahoo dual eligibility:** the model uses NHL primary positions. If Yahoo lists a C as also LW/RW, he's worth more, because wings run thin (replacement ~305 FP for wingers vs ~425 for centers). After `yahoo_sync.py eligibility` runs, `best` shows `Yahoo:C/RW` and counts every eligible position toward `<- NEED`. Without it, ask the owner when it matters.
-4. Fill the starters by the end: 2C, 2LW, 2RW, 4D, 1G, plus a 2nd G by the mid rounds and a 3rd late. Bench is 6. The tracker flags `<- NEED`.
+4. Fill the starters by the end: 2C, 2LW, 2RW, 4D, 1G, plus a 2nd G by the mid rounds and a 3rd late. Bench is 5 (16-man roster). The tracker flags `<- NEED`.
 5. Watch the notes column for injury and role flags. Avoid Hellebuyck (suspended, trade request) and unsettled goalie situations (EDM, NJD, PIT, WPG).
 6. Rookies: only in the late rounds, unless you have a specific reason.
 
@@ -79,6 +84,9 @@ python3 draft.py best 20                     # best available by VOR + unfilled 
 | `backtest.py`, `data/backtest_results.txt` | Draft simulation on 2024-25 and 2025-26 |
 | `fetch_stats.py` | Pulls NHL stats API data into `data/raw/` (needs `requests`) |
 | `auth.py` | Yahoo OAuth, two steps (`url` [noscope], then `<code>`) |
+| `docs/MANAGER.md` | In-season runbook: authority, daily steps, iMessage replies, schedule |
+| `manage.py`, `data/manager_rules.json` | In-season roster values, free-agent evaluation, acquisition guardrails |
+| `scripts/daily_run.sh`, `scripts/imessage_*.{sh,py}` | Headless run entry point; iMessage send/poll |
 
 To apply late news, edit `data/adjustments.json`, then run `python3 project.py > data/rankings_top200.txt && python3 cheatsheet.py`. That's safe mid-draft: `draft_state.json` stores names, not ranks.
 

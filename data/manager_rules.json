@@ -1,0 +1,22 @@
+{
+  "_comment": "Guardrails for autonomous in-season moves. Owner-editable. See docs/MANAGER.md.",
+  "max_auto_adds_per_week": 3,
+  "league_max_adds_per_week": 5,
+  "min_ros_gain_fp": 25,
+  "min_healthy_goalies": 2,
+  "protected": [
+    "Andrei Vasilevskiy",
+    "Jason Robertson",
+    "Kyle Connor",
+    "Moritz Seider",
+    "Alex Tuch",
+    "Tom Wilson",
+    "John Tavares",
+    "Bo Horvat",
+    "Jet Greaves",
+    "Bowen Byram"
+  ],
+  "season_start": "2026-09-29",
+  "season_end": "2027-04-04",
+  "auto_goalie_swaps": false
+}

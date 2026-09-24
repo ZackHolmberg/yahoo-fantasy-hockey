@@ -21,7 +21,7 @@ from pathlib import Path
 STATE = Path("data/draft_state.json")
 STARTERS = {"C": 2, "LW": 2, "RW": 2, "D": 4, "G": 1}
 TARGET = {"C": 3, "LW": 3, "RW": 3, "D": 5, "G": 3}  # starters + sensible bench depth
-ROSTER_SIZE = 17  # 11 active + 6 bench
+ROSTER_SIZE = 16  # 11 active + 5 bench
 
 
 def norm(s):

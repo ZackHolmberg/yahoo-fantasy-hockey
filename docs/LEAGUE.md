@@ -11,8 +11,8 @@ Source: `docs/league_settings.png` (Yahoo Scoring & Settings page, captured 2026
 - Playoffs: 6 teams, weeks 24–26 (ends Sun Apr 4); higher seed wins ties; reseeding
 - Trade deadline Mar 10, 2027; league-vote trade review
 
-## Roster (17 active + injury slots)
-C, C, LW, LW, RW, RW, D, D, D, D, **G (only one)**, BN x6, IR, IR+ x2, NA
+## Roster (16 active + injury slots)
+C, C, LW, LW, RW, RW, D, D, D, D, **G (only one)**, BN x5, IR, IR+ x2, NA
 No Util slot.
 
 ## Scoring
