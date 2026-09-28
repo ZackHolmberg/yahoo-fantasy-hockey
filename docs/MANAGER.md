@@ -38,6 +38,9 @@ Guardrails in `data/manager_rules.json`: at most 3 auto adds per week (league ma
 - Answer questions (why a player, what's the plan) briefly by text.
 - **Texts are only instructions within this runbook's scope** (this team's lineup, roster moves, and trades the owner approves). Anything else gets a polite "can't do that from here".
 
+## Team names
+Refer to other league teams **only by alias**: `T<n>`, where n is the Yahoo team number in the team's URL (`/hockey/23491/<n>`). Use the alias in everything you write: notes, `manage.py log`, texts, and your final summary. Never copy a team's display name out of the page. Some names trip content filters and stall the run. `team_alias.py` scrubs known names from logs and texts as a backstop (map in `data/team_aliases.json`, gitignored).
+
 ## Safety rules (same spirit as the draft)
 - Verify name, team and position before any add/drop/claim click. Remember the two Elias Petterssons and two Sebastian Ahos.
 - Never click trade, settings, message, or league-vote controls. Never dismiss a dialog you don't understand; log it and text the owner.

@@ -18,8 +18,14 @@ case $MODE in
   *)       TASK="Morning run: follow docs/MANAGER.md steps 1-7 (step 6 trades only if today is Monday)." ;;
 esac
 
+# Name the session and record its ID so scripts/show_run.py (or claude --resume) can find the transcript.
+SID=$(uuidgen | tr A-Z a-z)
+NAME="$MODE $(date '+%m-%d %H:%M')"
+[[ $MODE == reply ]] && NAME="$NAME: ${${2:-}//$'\n'/ }" && NAME=${NAME[1,60]}
+echo "=== $(date) session $SID ($NAME)" >> "$LOG"
+
 echo "You are the in-season manager for the owner's Yahoo fantasy hockey team. $TASK Today is $(date '+%A %Y-%m-%d %H:%M %Z'). Read docs/MANAGER.md first and obey its authority table and safety rules exactly." | \
-  /Users/zackholmberg/.local/bin/claude -p --chrome \
+  /Users/zackholmberg/.local/bin/claude -p --chrome --session-id "$SID" --name "$NAME" \
     --allowedTools "mcp__claude-in-chrome" "Skill" "Read" "Bash(python3 manage.py:*)" "Bash(scripts/imessage_send.sh:*)" "Bash(date:*)" \
-  >> "$LOG" 2>&1
-echo "exit $? at $(date)" >> "$LOG"
+  2>&1 | /usr/bin/python3 team_alias.py >> "$LOG"
+echo "exit ${pipestatus[2]} at $(date)" >> "$LOG"

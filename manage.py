@@ -16,6 +16,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 
 from draft import load_rankings, norm, resolve
+from team_alias import scrub
 
 STATE = Path("data/season_state.json")
 RULES = json.loads(Path("data/manager_rules.json").read_text())
@@ -140,7 +141,7 @@ def main():
             print(f"  {a['date']} +{a['add']} / -{a['drop']}{' (auto)' if a['auto'] else ''}")
     elif cmd == "log":
         with LOG.open("a") as f:
-            f.write(f"- {datetime.now():%Y-%m-%d %H:%M} {' '.join(args)}\n")
+            f.write(scrub(f"- {datetime.now():%Y-%m-%d %H:%M} {' '.join(args)}\n"))
         print("logged")
     else:
         sys.exit(__doc__)
