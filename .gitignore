@@ -24,3 +24,9 @@ data/season_log.md
 data/imessage.json
 data/imessage_state.json
 data/team_aliases.json
+
+# ESPN league runtime state (see docs/MANAGER_ESPN.md)
+espn/data/draft_state.json
+espn/data/season_state.json
+espn/data/season_log.md
+espn/data/espn_auth.json

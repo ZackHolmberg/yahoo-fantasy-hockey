@@ -14,22 +14,17 @@ Claude manages team **Suzuki For Hart** (league 23491) every day through the Cla
 Guardrails in `data/manager_rules.json`: at most 3 auto adds per week (league max 5, keeps 2 for injuries and owner-approved moves). A move needs at least +25 rest-of-season FP. Protected players are never auto-dropped. Goalie swaps always ask. Keep at least 2 healthy goalies.
 
 ## Each run
-1. **Open** a new tab in the Claude tab group: `https://hockey.fantasysports.yahoo.com/hockey/23491/` → My Team. If Yahoo shows a login page, stop and text the owner. Never enter credentials.
-2. **Sync roster:** read the roster (name, Yahoo positions, injury status: DTD, O, IR, IR-LT, NA) and run `python3 manage.py roster set "Name|POS|STATUS" ...`.
-3. **Injuries:** move any player marked IR/IR-LT (or O, if Yahoo allows it) into an open IR/IR+ slot. That frees a roster spot, so evaluate a pickup in step 5. Leave DTD players on the roster, but don't start them if they're ruled out today.
-4. **Lineup for today** (daily lineups; each player locks at his game's start):
-   - Start every healthy skater whose team plays today. If more players at a position have games than there are slots, start the higher FP/G (`manage.py roster`). Dual-eligible players (LW,RW) fill whichever slot is open.
-   - **G (one slot):** start the goalie who is **confirmed** starting today (check the Yahoo player note / "Starting" tag, or DailyFaceoff starting goalies). If none is confirmed at the morning run, start the likely starter with the best FP/G and re-check at the evening run.
-   - League rule: **minimum 2 goalie appearances per week.** By Friday, if the week has fewer than 2, prioritize any confirmed starter.
-   - Click Yahoo's "Start Active Players" only if it doesn't bench a better player; otherwise set slots by hand. Save and re-read the page to confirm.
-5. **Waivers / free agents:** Players → Available (and Waivers), sort by rank or FP, top ~40 skaters plus the top 10 goalies. Run `python3 manage.py eval "Name|POS|STATUS" ...`.
-   - `AUTO-OK`: make the add/drop (or waiver claim), then `python3 manage.py acq "Add" "Drop" --auto`.
-   - `ASK`, unranked rookies, or any move you'd make on news the model can't see (a new starting goalie, promotion to the top 6/PP1): don't act; list it for the owner with a one-line reason.
-   - The model is preseason. After ~15 games, weigh a player's current-season FP/G on Yahoo too (Yahoo's stats show this league's points). Mention it when current form and the model disagree by a lot.
-6. **Trades** (weekly, Monday run only): look for other teams' surplus at positions where we're thin (D is our weakest group). Draft a proposal only when the model shows value for both sides. **Never send it:** list it for the owner.
-7. **Report:** append to `data/season_log.md` with `python3 manage.py log "..."`: lineup changes, moves made, and pending questions for the owner (number them: `Q1`, `Q2`, ...). Then text the owner with `scripts/imessage_send.sh "..."`:
-   - **Text only when there's something to say:** a move was made, a decision is needed, or something broke. A quiet lineup-only day gets no text.
-   - Keep it short and phone-readable. For decisions, give each numbered option with a one-line reason so the owner can reply "yes Q1" or "no".
+The scripts do the reading and the math; you act on their report. Don't re-derive what the report already decided.
+1. **Read:** open a new tab on `https://hockey.fantasysports.yahoo.com/hockey/23491/11`. If Yahoo shows a login page, stop and text the owner. Never enter credentials. Read `scripts/yahoo_read.js` and run its contents with the javascript tool. If it answers "N chunks", call `window.__fhChunk(0)` ... `window.__fhChunk(N-1)`.
+2. **Report:** `python3 manage.py report '<chunk0>' '<chunk1>' ...`, passing every chunk verbatim and in order. It syncs the roster and prints:
+   - **ACTIONS:** lineup moves for today (only moves that change who plays), IR moves, `AUTO-OK` add/drops.
+   - **ASK OWNER**, **FYI**, and a **TEXT DRAFT**.
+3. **Act:** do each ACTION on the Yahoo pages. Verify name, team and position on the row before clicking. For an `AUTO-OK` add/drop, run the `manage.py acq ... --auto` command the report prints, right after the move goes through.
+   - **Goalie:** the report starts the best goalie with a game. Check Yahoo's "Starting" tag (or DailyFaceoff). If he isn't the confirmed starter, use the alternative the FYI names.
+4. **Verify:** repeat steps 1-2. ACTIONS should now be empty. If something won't go away (a locked player, a full IR), log why. Don't loop.
+5. **Trades** (Monday only): look for other teams' surplus where we're thin. Draft a proposal only when the model shows value for both sides. **Never send it:** list it for the owner.
+6. **Report:** `python3 manage.py log "..."` (what you did, plus ASK items numbered as the report says). Then send the TEXT DRAFT with `scripts/imessage_send.sh "..."`, edited to match what actually happened. If the draft says none, don't text.
+   - The model is preseason. After ~15 games, mention it when a player's current-season FP/G on Yahoo and the model disagree by a lot.
 
 ## Owner replies (iMessage)
 `scripts/imessage_poll.py` (launchd, every 2 min) starts a `reply` run when the owner texts from their own number (`data/imessage.json`).

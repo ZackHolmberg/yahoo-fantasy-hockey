@@ -1,0 +1,24 @@
+{
+  "_comment": "Guardrails for autonomous in-season moves in ESPN league 1034056432. Owner-editable. See docs/MANAGER_ESPN.md. FP scale is ~1/3 of the Yahoo league's, so min_ros_gain_fp is lower.",
+  "max_auto_adds_per_week": 4,
+  "league_max_adds_per_week": 7,
+  "min_ros_gain_fp": 8,
+  "min_healthy_goalies": 2,
+  "protected": [
+    "Nikita Kucherov",
+    "Nick Suzuki",
+    "Jack Eichel",
+    "Tim Stützle",
+    "Aleksander Barkov",
+    "Jack Hughes",
+    "Adrian Kempe",
+    "Cale Makar",
+    "Moritz Seider",
+    "Jakob Chychrun",
+    "Josh Morrissey",
+    "Logan Thompson"
+  ],
+  "season_start": "2026-10-05",
+  "season_end": "2027-04-11",
+  "auto_goalie_swaps": false
+}

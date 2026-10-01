@@ -5,6 +5,8 @@ You (Claude) are helping the owner draft and manage a team in **Yahoo league 234
 ## In-season (current phase)
 The draft is done (Sep 23, 2026). The owner's team is **Suzuki For Hart** (drafted 8th). The season starts Tue Sep 29. Claude manages the team daily per **`docs/MANAGER.md`**: headless runs at 11:30 and 18:15 ET via launchd, and the owner talks to Claude by iMessage. That runbook's authority table decides what Claude may do alone (lineups, IR moves, `AUTO-OK` add/drops) and what needs the owner (trades, goalie swaps, anything else). If the owner says "manage the team" in a session, follow the same runbook.
 
+**Second league (ESPN 1034056432, "Leafs suck", 6 teams, drafted Sep 30, 2026):** same team name, managed per **`docs/MANAGER_ESPN.md`** (weekly lineup lock, its own scoring and rankings in `espn/data/`; use `python3 manage.py --league espn ...`). Daily headless run at 10:30 ET plus Sunday 21:00.
+
 The draft sections below are kept for next season.
 
 ## Division of labor during the draft

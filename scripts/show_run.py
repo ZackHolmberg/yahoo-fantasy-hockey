@@ -43,9 +43,9 @@ def prompt_of(rows):
 
 
 def mode_of(prompt):
-    for m in ("Morning run", "Evening run", "replied by iMessage"):
+    for m in ("Morning run", "Evening run", "ESPN run", "replied by iMessage"):
         if m in prompt:
-            return {"Morning run": "morning", "Evening run": "evening"}.get(m, "reply")
+            return {"Morning run": "morning", "Evening run": "evening", "ESPN run": "espn"}.get(m, "reply")
     return "?"
 
 

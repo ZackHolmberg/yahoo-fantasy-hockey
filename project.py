@@ -3,7 +3,10 @@ last two NHL seasons, then rank by value over replacement (VOR)."""
 import csv
 import json
 from collections import defaultdict
+import os
 from pathlib import Path
+
+ESPN = os.environ.get("LEAGUE") == "espn"  # ESPN league 1034056432: run from espn/ with LEAGUE=espn
 
 RAW = Path("data/raw")
 SEASONS = {"20252026": 0.65, "20242025": 0.35}  # recency weights
@@ -14,6 +17,9 @@ GOALIE_PTS = dict(W=2, L=-0.5, GA=-3, SV=0.6, SHO=2)
 # Rostered-at-position depth in a 12-team league (starters + share of bench).
 REPLACEMENT_RANK = {"C": 30, "LW": 30, "RW": 30, "D": 56, "G": 26}
 POS = {"C": "C", "L": "LW", "R": "RW", "D": "D"}
+if ESPN:  # 6 teams; starters 12 F, 6 D, 2 G; 4 bench
+    REPLACEMENT_RANK = {"F": 80, "D": 40, "G": 15}
+    POS = {"C": "F", "L": "F", "R": "F", "D": "D"}
 
 
 def load(kind, report, season):
@@ -21,6 +27,9 @@ def load(kind, report, season):
 
 
 def skater_season_fp(s, rt, fo):
+    if ESPN:  # PTS 1, PIM 0.5, PPP 1, SHP 1, GWG 1, SOG 0.1, HIT 0.1
+        return (s["points"] + 0.5 * s["penaltyMinutes"] + (s["ppPoints"] or 0) + (s["shPoints"] or 0)
+                + (s["gameWinningGoals"] or 0) + 0.1 * s["shots"] + 0.1 * (rt.get("hits") or 0))
     shp = s["shPoints"] or 0
     shg = s["shGoals"] or 0
     return (
@@ -33,6 +42,8 @@ def skater_season_fp(s, rt, fo):
 
 
 def goalie_season_fp(g):
+    if ESPN:  # W 3, SO 6
+        return 3 * g["wins"] + 6 * g["shutouts"]
     return (GOALIE_PTS["W"] * g["wins"] + GOALIE_PTS["L"] * g["losses"] + GOALIE_PTS["GA"] * g["goalsAgainst"]
             + GOALIE_PTS["SV"] * g["saves"] + GOALIE_PTS["SHO"] * g["shutouts"])
 

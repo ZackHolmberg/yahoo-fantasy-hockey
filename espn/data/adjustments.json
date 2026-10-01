@@ -1,0 +1,305 @@
+{
+  "_comment": "Offseason/camp adjustments as of 2026-09-23 (research agent report). fpg_mult = role change, proj_gp = games (starts for G).",
+  "Anze Kopitar": {
+    "remove": true
+  },
+  "Jonathan Toews": {
+    "remove": true
+  },
+  "Kevin Hayes": {
+    "remove": true
+  },
+  "Connor Ingram": {
+    "remove": true
+  },
+  "Brady Tkachuk": {
+    "team": "FLA",
+    "fpg_mult": 0.95,
+    "note": "traded to FLA; crowded PP1; minor preseason tweak"
+  },
+  "William Eklund": {
+    "team": "OTT",
+    "fpg_mult": 1.1,
+    "note": "top-6 in OTT, PP1 chance"
+  },
+  "Bowen Byram": {
+    "team": "CHI",
+    "fpg_mult": 1.15,
+    "note": "CHI #1 D + PP1 QB"
+  },
+  "Jordan Kyrou": {
+    "team": "WSH",
+    "fpg_mult": 1.05,
+    "note": "WSH top line"
+  },
+  "Connor McMichael": {
+    "team": "STL"
+  },
+  "Alex Tuch": {
+    "team": "WSH",
+    "note": "signed WSH, top-6"
+  },
+  "Pavel Dorofeyev": {
+    "team": "NYR",
+    "fpg_mult": 1.05,
+    "note": "NYR top-6/PP1"
+  },
+  "John-Jason Peterka": {
+    "team": "BOS",
+    "fpg_mult": 0.95,
+    "note": "BOS, not PP1"
+  },
+  "Mason McTavish": {
+    "team": "STL",
+    "note": "STL top-6 C"
+  },
+  "Valeri Nichushkin": {
+    "team": "CBJ",
+    "fpg_mult": 0.9
+  },
+  "Vincent Trocheck": {
+    "team": "UTA",
+    "fpg_mult": 0.75,
+    "note": "FADE: 3rd-line C in UTA, little PP"
+  },
+  "Sean Durzi": {
+    "team": "NYR",
+    "note": "NYR PP2 QB"
+  },
+  "Darnell Nurse": {
+    "team": "SJS"
+  },
+  "Luke Evangelista": {
+    "team": "NJD"
+  },
+  "Darren Raddysh": {
+    "team": "TOR",
+    "fpg_mult": 0.95,
+    "note": "signed TOR, PP1 QB option"
+  },
+  "Alex Ovechkin": {
+    "proj_gp": 72,
+    "fpg_mult": 0.9,
+    "note": "age 41, 2nd line, LBI in camp"
+  },
+  "Patrick Kane": {
+    "team": "CHI",
+    "fpg_mult": 1.05,
+    "note": "CHI top line + PP1"
+  },
+  "Anthony Mantha": {
+    "team": "NJD"
+  },
+  "Mason Marchment": {
+    "team": "SJS",
+    "fpg_mult": 1.05,
+    "note": "top line w/ Celebrini"
+  },
+  "John Carlson": {
+    "team": "TBL"
+  },
+  "Andrei Kuzmenko": {
+    "team": "PIT"
+  },
+  "Oliver Bjorkstrand": {
+    "team": "NYR"
+  },
+  "Chris Kreider": {
+    "team": "MTL",
+    "note": "MTL top line w/ Suzuki/Caufield"
+  },
+  "Logan Stankoven": {
+    "fpg_mult": 1.1,
+    "note": "CAR PP1 while Jarvis out"
+  },
+  "Adam Fantilli": {
+    "proj_gp": 66,
+    "note": "RFA holdout, skipping camp"
+  },
+  "Charlie McAvoy": {
+    "proj_gp": 58,
+    "note": "suspended first 6 games"
+  },
+  "Connor Bedard": {
+    "proj_gp": 62,
+    "note": "shoulder surgery, out to ~Nov"
+  },
+  "Seth Jarvis": {
+    "proj_gp": 62,
+    "note": "out to ~Nov"
+  },
+  "Dylan Larkin": {
+    "proj_gp": 70,
+    "note": "UBI + trade request"
+  },
+  "Mathew Barzal": {
+    "proj_gp": 70,
+    "note": "re-aggravated injury"
+  },
+  "Brad Marchand": {
+    "proj_gp": 62,
+    "note": "hip/hernia, early-season return"
+  },
+  "Cale Makar": {
+    "note": "minor LBI, cautious"
+  },
+  "Max Domi": {
+    "proj_gp": 35,
+    "note": "failed physical, out indefinitely"
+  },
+  "Yanni Gourde": {
+    "proj_gp": 50,
+    "note": "hip surgery, out to Dec"
+  },
+  "Jason Zucker": {
+    "proj_gp": 65,
+    "note": "hernia, misses start"
+  },
+  "Kaiden Guhle": {
+    "proj_gp": 66,
+    "note": "adductor surgery 4-5 wks"
+  },
+  "Connor Hellebuyck": {
+    "proj_gp": 30,
+    "note": "HIGH RISK: suspended, trade request, won't report"
+  },
+  "Andrei Vasilevskiy": {
+    "proj_gp": 62
+  },
+  "Karel Vejmelka": {
+    "proj_gp": 62
+  },
+  "Logan Thompson": {
+    "proj_gp": 60
+  },
+  "Ilya Sorokin": {
+    "proj_gp": 58
+  },
+  "Igor Shesterkin": {
+    "proj_gp": 58
+  },
+  "Jake Oettinger": {
+    "proj_gp": 58
+  },
+  "Juuse Saros": {
+    "proj_gp": 58
+  },
+  "Jeremy Swayman": {
+    "proj_gp": 57
+  },
+  "Spencer Knight": {
+    "proj_gp": 55
+  },
+  "Jet Greaves": {
+    "proj_gp": 55,
+    "note": "Merzlikins out"
+  },
+  "Lukas Dostal": {
+    "proj_gp": 55
+  },
+  "John Gibson": {
+    "team": "DET",
+    "proj_gp": 52
+  },
+  "Dustin Wolf": {
+    "proj_gp": 48,
+    "note": "platoon risk w/ Cooley"
+  },
+  "Ukko-Pekka Luukkonen": {
+    "proj_gp": 40,
+    "note": "~50/50 w/ Lyon"
+  },
+  "Scott Wedgewood": {
+    "proj_gp": 45,
+    "note": "1A/1B"
+  },
+  "Mackenzie Blackwood": {
+    "proj_gp": 37,
+    "note": "1A/1B"
+  },
+  "Filip Gustavsson": {
+    "proj_gp": 40,
+    "note": "1A/1B w/ Wallstedt, may lose job"
+  },
+  "Darcy Kuemper": {
+    "proj_gp": 44,
+    "note": "near 1A/1B"
+  },
+  "Linus Ullmark": {
+    "proj_gp": 50
+  },
+  "Dan Vladar": {
+    "team": "PHI",
+    "proj_gp": 42,
+    "note": "may split w/ Woll"
+  },
+  "Joseph Woll": {
+    "team": "PHI",
+    "proj_gp": 34
+  },
+  "Joey Daccord": {
+    "proj_gp": 46
+  },
+  "Joel Hofer": {
+    "proj_gp": 52,
+    "note": "taking over STL net"
+  },
+  "Jordan Binnington": {
+    "proj_gp": 28
+  },
+  "Sergei Bobrovsky": {
+    "team": "TOR",
+    "proj_gp": 42,
+    "note": "1A/1B w/ Stolarz"
+  },
+  "Anthony Stolarz": {
+    "proj_gp": 38
+  },
+  "Jacob Markstrom": {
+    "team": "FLA",
+    "proj_gp": 48,
+    "note": "age 36, FLA starter"
+  },
+  "Stuart Skinner": {
+    "team": "WPG",
+    "proj_gp": 45,
+    "note": "WPG starter while Hellebuyck out"
+  },
+  "Yaroslav Askarov": {
+    "proj_gp": 52,
+    "note": "SJS starter"
+  },
+  "Jakub Dobes": {
+    "proj_gp": 50,
+    "note": "MTL starter"
+  },
+  "Jesper Wallstedt": {
+    "proj_gp": 42,
+    "note": "1A/1B, may take MIN job"
+  },
+  "Brandon Bussi": {
+    "proj_gp": 45,
+    "note": "CAR 1A"
+  },
+  "Pyotr Kochetkov": {
+    "proj_gp": 37,
+    "note": "CAR 1B"
+  },
+  "Kevin Lankinen": {
+    "proj_gp": 45,
+    "note": "VAN starter while Demko limited"
+  },
+  "Alex Lyon": {
+    "proj_gp": 38,
+    "note": "~50/50 w/ UPL"
+  },
+  "Tristan Jarry": {
+    "team": "EDM",
+    "proj_gp": 38,
+    "note": "EDM unsettled, avoid"
+  },
+  "Simon Nemec": {
+    "team": "CGY",
+    "note": "CGY top-4, PP upside"
+  }
+}

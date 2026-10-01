@@ -21,6 +21,9 @@ from pathlib import Path
 STATE = Path("data/draft_state.json")
 STARTERS = {"C": 2, "LW": 2, "RW": 2, "D": 4, "G": 1}
 TARGET = {"C": 3, "LW": 3, "RW": 3, "D": 5, "G": 3}  # starters + sensible bench depth
+if __import__("os").environ.get("LEAGUE") == "espn":  # ESPN league: 12 F, 6 D, 2 G, 4 bench
+    STARTERS = {"F": 12, "D": 6, "G": 2}
+    TARGET = {"F": 14, "D": 7, "G": 3}
 ROSTER_SIZE = 16  # 11 active + 5 bench
 
 
