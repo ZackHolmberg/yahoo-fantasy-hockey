@@ -3,6 +3,7 @@
     python3 espn_bot.py apply --dry-run   # print the exact requests the report's ACTIONS would send; sends nothing
     python3 espn_bot.py apply             # send them, then re-read and verify
     python3 espn_bot.py swap "Add" "Drop" [--dry-run]   # one add/drop the OWNER approved (reply pipeline)
+    python3 espn_bot.py add "Name" ["Name" ...] [--dry-run]  # pure adds into OPEN roster spots (owner-approved)
 
 Only three kinds of change can be built here: lineup slot moves, IR moves, and the report's AUTO-OK add/drops (a
 FREEAGENT move, or a WAIVER claim if the player is on waivers). Before sending, every player is checked against a
@@ -75,7 +76,7 @@ def read_state():
     period = {"roster": league.get("scoringPeriodId") or status.get("latestScoringPeriod"),
               "move": status.get("transactionScoringPeriod") or league.get("scoringPeriodId")}
     code, fa = request(READ + "?view=kona_player_info", fantasy_filter={"players": {
-        "filterStatus": {"value": ["FREEAGENT", "WAIVERS"]}, "limit": 60,
+        "filterStatus": {"value": ["FREEAGENT", "WAIVERS"]}, "limit": 300,
         "sortPercOwned": {"sortPriority": 1, "sortAsc": False}}})
     pool = {x["player"]["fullName"]: {"id": x["player"]["id"], "status": x.get("status")} for x in fa.get("players", [])}
     return roster, pool, period, auth().get("SWID")
@@ -141,9 +142,44 @@ def clean(body):
 
 def main():
     cmd = sys.argv[1] if len(sys.argv) > 1 else ""
-    if cmd not in ("apply", "swap"):
+    if cmd not in ("apply", "swap", "add"):
         sys.exit(__doc__)
     dry = "--dry-run" in sys.argv
+    if cmd == "add":
+        names = [a for a in sys.argv[2:] if a != "--dry-run"]
+        roster, pool, period, member = read_state()
+        code, settings = request(READ + "?view=mSettings")
+        slots = settings["settings"]["rosterSettings"]["lineupSlotCounts"]
+        open_spots = sum(v for k, v in slots.items() if k != str(SLOT["IR"])) - sum(1 for r in roster.values() if r["slot"] != SLOT["IR"])
+        result = {"did": [], "skipped": []}
+        for name in names:
+            add = pool.get(norm(name)) or pool.get(name)
+            if not add:
+                result["skipped"].append(f"{name}: not a free agent or on waivers"); continue
+            if open_spots <= 0:
+                result["skipped"].append(f"{name}: no open roster spot (add/drop instead)"); continue
+            kind = "WAIVER" if add["status"] == "WAIVERS" else "FREEAGENT"
+            body = {"isLeagueManager": False, "teamId": TEAM, "executionType": "EXECUTE", "memberId": member, "type": kind,
+                    "scoringPeriodId": period["move"], "items": [{"playerId": add["id"], "type": "ADD", "toTeamId": TEAM, "_name": name}]}
+            if dry:
+                print(f"(dry run) would POST {WRITE}\n{json.dumps(clean(body), indent=1)}")
+                result["did"].append("(dry run) " + describe(body)); open_spots -= 1; continue
+            code, resp = request(WRITE, clean(body))
+            with WRITE_LOG.open("a") as f:
+                f.write(f"{datetime.now().isoformat()} {code} {describe(body)}\n  request {json.dumps(clean(body))}\n  response {json.dumps(resp)[:1500]}\n")
+            status = resp.get("status") or next((t.get("status") for t in resp.get("transactions", [])), None)
+            if code == 200 and status in ("EXECUTED", "PENDING"):
+                result["did"].append(f"{describe(body)} ({status.lower()})"); open_spots -= 1
+                subprocess.run([sys.executable, str(REPO / "manage.py"), "--league", "espn", "acq", name, "(open spot)"],
+                               cwd=REPO, capture_output=True)
+            else:
+                err = resp.get("messages") or resp.get("details") or resp
+                result["skipped"].append(f"{describe(body)}: ESPN said HTTP {code} {status or ''} {json.dumps(err)[:200]}")
+        print("DID:", *result["did"] or ["nothing"], sep="\n  ")
+        if result["skipped"]:
+            print("SKIPPED:", *result["skipped"], sep="\n  ")
+        print("\nRESULT_JSON " + json.dumps(result))
+        return
     if cmd == "swap":
         args = [a for a in sys.argv[2:] if a != "--dry-run"]
         plan = {"lineup": {}, "ir": [], "swaps": [{"add": args[0], "drop": args[1], "gain": 0, "approved": True}]}

@@ -18,5 +18,7 @@
   ],
   "season_start": "2026-09-29",
   "season_end": "2027-04-04",
-  "auto_goalie_swaps": false
+  "auto_goalie_swaps": false,
+  "do_not_start": [],
+  "_do_not_start": "Owner's calls the lineup plans must respect (injured/scratched per the owner, news the model can't see). Remove a name to let the bot start him again."
 }

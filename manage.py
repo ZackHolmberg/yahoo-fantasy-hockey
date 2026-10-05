@@ -173,9 +173,10 @@ def week_games(day):
 def espn_week_plan(mine, day):
     """ESPN weekly lineup: 12 F, 6 D, 2 G by projected points for the week containing `day`."""
     monday, games = week_games(day)
+    benched = set(RULES.get("do_not_start", []))
     for p in mine:
         g = games.get(p["team"], 0)
-        if p["status"] in INJURED:
+        if p["status"] in INJURED or p["name"] in benched:
             g = 0
         elif p["status"] in {"DTD", "DAY_TO_DAY"}:
             g *= 0.7
@@ -244,7 +245,7 @@ def yahoo_day_plan(mine, playing, current=None, starters=None):
     """Best skater lineup for one day: greedy by FP/G with a bipartite feasibility check (optimal here,
     because a player's value doesn't depend on the slot). Goalie: best FP/G x start share among those playing."""
     def value(p):
-        if p["status"] in INJURED or p["team"] not in playing:
+        if p["status"] in INJURED or p["team"] not in playing or p["name"] in RULES.get("do_not_start", []):
             return 0
         return p["fpg"] * (0.7 if p["status"] in {"DTD", "DAY_TO_DAY"} else 1)
     sk = sorted((p for p in mine if p["group"] != "G" and value(p) > 0), key=lambda p: -value(p))
