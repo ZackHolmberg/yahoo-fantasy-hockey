@@ -7,6 +7,8 @@ The draft is done (Sep 23, 2026). The owner's team is **Suzuki For Hart** (draft
 
 **Second league (ESPN 1034056432, "Leafs suck", 6 teams, drafted Sep 30, 2026):** same team name, managed per **`docs/MANAGER_ESPN.md`** (weekly lineup lock, its own scoring and rankings in `espn/data/`; use `python3 manage.py --league espn ...`). Daily headless run at 10:30 ET plus Sunday 21:00.
 
+**Since 2026-10-04 the daily work runs as scripts** (`scripts/daily_auto.py`, `yahoo_bot.py`, `espn_bot.py`, `scripts/reply_auto.py`) with a switchable LLM layer (`llm.py`, driver in `data/llm.json`). See the "Scheduled runs are scripts" section of `docs/MANAGER.md`.
+
 The draft sections below are kept for next season.
 
 ## Division of labor during the draft

@@ -1,4 +1,4 @@
-"""Check Messages for new texts from the owner; if any, start a reply run.
+"""Check Messages for new texts from the owner; if any, hand them to scripts/reply_auto.py.
 
 Run by launchd every 2 minutes. Needs Full Disk Access for the python3 that runs it (to read chat.db).
 Messages sent by Claude start with the configured prefix and are ignored. The first run only records
@@ -49,7 +49,8 @@ def main():
     texts = list(dict.fromkeys(t for t in (body(r[1], r[2]).strip() for r in rows)
                                if t and not t.startswith(CFG["prefix"].strip())))
     if texts:
-        subprocess.run([str(REPO / "scripts/daily_run.sh"), "reply", "\n".join(texts)])
+        # scripts + the LLM layer (llm.py) handle replies; data/llm.json picks the local model or Claude
+        subprocess.run([str(REPO / "scripts/reply_auto.py"), "\n".join(texts)])
 
 
 if __name__ == "__main__":

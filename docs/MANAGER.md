@@ -42,9 +42,20 @@ Refer to other league teams **only by alias**: `T<n>`, where n is the Yahoo team
 - If the browser tools error twice in a row, stop, log it, and text the owner. Don't retry in a loop.
 - Human pace: a handful of page loads per run, no rapid-fire scraping.
 
+## Scheduled runs are scripts, not Claude (since 2026-10-04)
+launchd runs `scripts/daily_auto.py`, which needs no Claude call on most days:
+- **Yahoo:** `yahoo_bot.py apply` reads the site with Playwright in a dedicated browser profile (`data/yahoo_profile/`, gitignored), which the owner signed into once with `.venv/bin/python yahoo_bot.py login`. It sets the lineup/IR in Yahoo's edit-roster form and makes `AUTO-OK` add/drops, checking player names on the page before each submit. Then it re-checks. If Yahoo signs the bot out, the run texts the owner and falls back to the Claude run (`daily_run.sh morning|evening`).
+- **ESPN:** `report --fetch` (API with the owner's cookies), then `espn_bot.py apply` makes the ACTIONS through ESPN's write API. Lineup moves use the current scoring period, adds/drops the transaction period. A locked lineup (`... is locked`) is reported and retried next run. No LLM or browser involved.
+- **Texts:** `llm.py` phrases them, with a plain template as fallback. The script logs to the season log and numbers questions Q../E...
+- **Replies:** `imessage_poll.py` hands the owner's texts to `scripts/reply_auto.py`. The LLM layer reads the free-form text into one intent (approve/reject an open question, trade check, trade ideas, question). The script validates it, acts (`yahoo_bot.py`/`espn_bot.py swap`, `manage.py trade`/`trade-ideas`), and the LLM phrases the answer. Trades are never sent: the owner gets the numbers and a note to paste. Test without side effects: `REPLY_DRY=1 scripts/reply_auto.py "text"`.
+- **LLM driver:** `data/llm.json` `"driver": "local"` (Qwen on this Mac) or `"claude"` (claude CLI, no tools). Nothing else changes when you switch.
+- **Goalies:** the Yahoo plan uses DailyFaceoff's starting-goalie statuses (confirmed > likely > unconfirmed). The 18:15 run catches late confirmations.
+- **Mondays:** both leagues' texts include up to two 1-for-1 trade ideas that improve both sides' best lineup (`manage.py trade-ideas`).
+- Logs: `data/run_logs/<date>_auto_<league>.log`. The Claude runbook sections above still apply whenever Claude is the one running.
+
 ## Schedule
-- `scripts/daily_run.sh morning` at 11:30 ET: full run (steps 1–7).
-- `scripts/daily_run.sh evening` at 18:15 ET: re-check confirmed goalies and late scratches only (steps 1, 2, 4, 7).
+- `scripts/daily_auto.py yahoo morning` at 11:30 ET (falls back to `daily_run.sh morning`).
+- `scripts/daily_auto.py yahoo evening` at 18:15 ET (falls back to `daily_run.sh evening`).
 - `scripts/imessage_poll.py` every 2 min: starts `daily_run.sh reply` when the owner texts. Needs Full Disk Access for `/usr/bin/python3` (to read `chat.db`) and Automation permission to control Messages.
 - Installed via `~/Library/LaunchAgents/com.zackholmberg.fantasyhockey.{morning,evening,imessage}.plist`. Needs the Mac awake (runs missed while asleep fire on wake), Chrome open, and the extension connected. Logs go to `data/run_logs/`. Only one run happens at a time (`data/.run.lock`).
 - Pause everything: `launchctl bootout gui/501/com.zackholmberg.fantasyhockey.<morning|evening|imessage>`.

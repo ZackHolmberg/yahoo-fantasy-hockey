@@ -1,0 +1,5 @@
+{
+  "_comment": "LLM driver for every script (llm.py): \"local\" = Qwen on this Mac, \"claude\" = claude CLI (claude_model). Nothing else needs changing to switch.",
+  "driver": "local",
+  "claude_model": "sonnet"
+}

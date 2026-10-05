@@ -13,6 +13,13 @@ for i in {1..60}; do mkdir "$LOCK" 2>/dev/null && break; sleep 10; done
 [[ -d $LOCK ]] || exit 1
 trap 'rmdir "$LOCK"' EXIT
 
+# Runs drive Chrome through the Claude in Chrome extension: start Chrome in the background if it isn't running
+# and give the extension a moment to connect.
+if ! pgrep -xq "Google Chrome"; then
+  echo "=== $(date) Chrome wasn't running; starting it" >> "$LOG"
+  /usr/bin/open -g -a "Google Chrome" && sleep 15
+fi
+
 RUNBOOK="docs/MANAGER.md"
 case $MODE in
   espn)    RUNBOOK="docs/MANAGER_ESPN.md"

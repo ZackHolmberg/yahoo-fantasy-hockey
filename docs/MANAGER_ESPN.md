@@ -42,5 +42,5 @@ Replies come through the same iMessage poller as Yahoo. A reply about E-numbered
 - If the browser tools error twice in a row, stop, log, and text the owner.
 
 ## Schedule
-- `scripts/daily_run.sh espn` at 10:30 ET daily (`~/Library/LaunchAgents/com.zackholmberg.fantasyhockey.espn.plist`), plus Sunday 21:00 so the lineup is set the night before the Monday lock. Logs: `data/run_logs/<date>_espn.log`. Uses the same run lock as the Yahoo runs.
+- `scripts/daily_auto.py espn` at 10:30 ET daily: report, then `espn_bot.py apply` for any ACTIONS (no Claude) (`~/Library/LaunchAgents/com.zackholmberg.fantasyhockey.espn.plist`), plus Sunday 21:00 so the lineup is set the night before the Monday lock. Logs: `data/run_logs/<date>_espn.log`. Uses the same run lock as the Yahoo runs.
 - Pause: `launchctl bootout gui/501/com.zackholmberg.fantasyhockey.espn`.

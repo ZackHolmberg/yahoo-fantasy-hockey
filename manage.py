@@ -8,6 +8,9 @@
     python3 manage.py log "text"                         # append a line to data/season_log.md
     python3 manage.py lineup [YYYY-MM-DD]                # ESPN: best weekly lineup for the week containing that date
     python3 manage.py --league espn report --fetch       # ESPN without Chrome: reads the API with espn/data/espn_auth.json
+    python3 manage.py trade --give "A;B" --get "C" --theirs "<spec> ~ <spec> ..."   # both sides' lineup-value change
+    python3 manage.py trade-ideas --team N "<spec> ~ ..." [--team M ...]          # 1-for-1 trades good for both sides
+    (ESPN: --theirs/--team rosters can be omitted; they're read from the API.)
     python3 manage.py report '<chunk>' ...               # daily report: syncs the roster, prints ACTIONS / ASK / text draft.
                                                          # payload chunks come from scripts/yahoo_read.js or espn_read.js.
 
@@ -218,7 +221,26 @@ def day_teams(day):
     return {g[s]["abbrev"] for d in week if d["date"] == day.isoformat() for g in d["games"] for s in ("homeTeam", "awayTeam")}
 
 
-def yahoo_day_plan(mine, playing, current=None):
+def goalie_status(day):
+    """{goalie name: 'Confirmed'|'Likely'|''} for `day` from DailyFaceoff's starting-goalies page; {} if unreachable."""
+    url = f"https://www.dailyfaceoff.com/starting-goalies/{day.isoformat()}"
+    req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+                                               "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36"})
+    try:
+        with urllib.request.urlopen(req, timeout=20) as r:
+            html = r.read().decode("utf-8", "ignore")
+        data = json.loads(re.search(r'<script id="__NEXT_DATA__"[^>]*>(.*?)</script>', html, re.S).group(1))
+        out = {}
+        for g in data["props"]["pageProps"]["data"]:
+            for side in ("away", "home"):
+                if g.get(f"{side}GoalieName"):
+                    out[g[f"{side}GoalieName"]] = g.get(f"{side}NewsStrengthName") or ""
+        return out
+    except Exception:
+        return {}
+
+
+def yahoo_day_plan(mine, playing, current=None, starters=None):
     """Best skater lineup for one day: greedy by FP/G with a bipartite feasibility check (optimal here,
     because a player's value doesn't depend on the slot). Goalie: best FP/G x start share among those playing."""
     def value(p):
@@ -246,8 +268,18 @@ def yahoo_day_plan(mine, playing, current=None):
         if not fits(p, set()):
             owner.clear(); owner.update(snapshot)
     plan = {p["name"]: YAHOO_SLOTS[i] for i, p in owner.items()}
-    goalies = sorted((p for p in mine if p["group"] == "G" and value(p) > 0),
-                     key=lambda p: -value(p) * min(1.0, p["gp"] / 82))
+    # chance he actually starts: DailyFaceoff's status when known, else his share of team starts
+    starters = starters or {}
+    by_norm = {norm(n): st for n, st in starters.items()}
+
+    def start_odds(p):
+        st = by_norm.get(norm(p["name"]))
+        if st is None:
+            return min(1.0, p["gp"] / 82) * (0.5 if starters else 1.0)  # not projected to start today
+        return {"Confirmed": 1.0, "Likely": 0.8}.get(st, 0.6)
+    goalies = sorted((p for p in mine if p["group"] == "G" and value(p) > 0), key=lambda p: -value(p) * start_odds(p))
+    for g in goalies:
+        g["start"] = by_norm.get(norm(g["name"]))
     if goalies:
         plan[goalies[0]["name"]] = "G"
     return plan, goalies
@@ -259,8 +291,9 @@ ESPN_POS = {1: "F", 2: "F", 3: "F", 4: "D", 5: "G"}
 ESPN_SLOT = {3: "F", 4: "D", 5: "G", 7: "BE", 8: "IR"}
 
 
-def espn_fetch():
-    """Same payload as scripts/espn_read.js, read straight from ESPN's API with the owner's cookies."""
+def espn_fetch(team=None, all_teams=False):
+    """Same payload as scripts/espn_read.js, read straight from ESPN's API with the owner's cookies.
+    team=N returns that team's roster specs; all_teams=True returns {team id: [spec, ...]} for every team."""
     auth = json.loads(Path("data/espn_auth.json").read_text())
     if not auth.get("espn_s2") or not auth.get("SWID"):
         sys.exit("espn_fetch: fill espn_s2 and SWID in espn/data/espn_auth.json (see its _comment), or use the Chrome snippet")
@@ -285,6 +318,9 @@ def espn_fetch():
         st = pl.get("injuryStatus") or ""
         return f"{pl['fullName']}|{ESPN_POS.get(pl['defaultPositionId'], '?')}|{'' if st == 'ACTIVE' else st}|{teams.get(pl['proTeamId'], '')}"
     league = get(f"{league_url}?view=mRoster")
+    if team is not None or all_teams:
+        rosters = {t["id"]: [fmt(e["playerPoolEntry"]["player"]) for e in t["roster"]["entries"]] for t in league["teams"]}
+        return rosters if all_teams else rosters[team]
     mine = next(t for t in league["teams"] if t["id"] == ESPN_TEAM)
     items = [f"D {date.today().isoformat()}"]
     items += [f"R {ESPN_SLOT.get(e['lineupSlotId'], e['lineupSlotId'])}:{fmt(e['playerPoolEntry']['player'])}"
@@ -296,6 +332,119 @@ def espn_fetch():
     return " ~ ".join(items)
 
 
+REPL_CACHE = {}
+
+
+def replacement_ros(pos):
+    """Rest-of-season FP of a waiver-level player at a position (the VOR baseline): what fills an empty slot."""
+    if pos not in REPL_CACHE:
+        rows = [r for r in load_rankings() if r["pos"] == pos]
+        REPL_CACHE[pos] = (float(rows[0]["proj_fp"]) - float(rows[0]["vor"])) * season_left() if rows else 0.0
+    return REPL_CACHE[pos]
+
+
+def lineup_value(players):
+    """Rest-of-season FP of the best starting lineup this roster can field. Empty slots count as a waiver pickup
+    (replacement level), since a real team would fill them; the bench adds nothing."""
+    healthy = [p for p in players if p["status"] not in INJURED]
+    if ESPN:
+        total = 0.0
+        for g, n in ESPN_SLOTS.items():
+            vals = sorted((p["ros"] for p in healthy if p["group"] == g), reverse=True)[:n]
+            vals += [replacement_ros(g)] * (n - len(vals))
+            total += sum(max(v, replacement_ros(g)) for v in vals)
+        return total
+    owner = {}
+
+    def fits(p, seen):
+        for i, slot in enumerate(YAHOO_SLOTS):
+            if slot in p["pos"].split(",") and i not in seen:
+                seen.add(i)
+                if i not in owner or fits(owner[i], seen):
+                    owner[i] = p
+                    return True
+        return False
+    for p in sorted((p for p in healthy if p["group"] != "G"), key=lambda p: -p["ros"]):
+        snap = dict(owner)
+        if not fits(p, set()):
+            owner.clear(); owner.update(snap)
+    goalies = sorted((p["ros"] for p in healthy if p["group"] == "G"), reverse=True) + [replacement_ros("G")] * 2
+    filled = sum(max(p["ros"], replacement_ros(YAHOO_SLOTS[i])) for i, p in owner.items())
+    empty = sum(replacement_ros(YAHOO_SLOTS[i]) for i in range(len(YAHOO_SLOTS)) if i not in owner)
+    # one G slot: the #1 counts fully, the #2 covers the #1's nights off (same discount as the draft tracker)
+    return filled + empty + goalies[0] + 0.5 * goalies[1]
+
+
+def trade_eval(mine, theirs, give, get):
+    """Both sides' change in best-lineup ROS FP. give/get: player names (fuzzy-matched within the two rosters)."""
+    def pick(names, roster):
+        out = []
+        for n in names:
+            m = [p for p in roster if norm(p["name"]) == norm(n)] or [p for p in roster if norm(n) in norm(p["name"])]
+            if len(m) != 1:
+                raise ValueError(f"can't find exactly one '{n}' on that roster")
+            out.append(m[0])
+        return out
+    g, r = pick(give, mine), pick(get, theirs)
+    us_after = [p for p in mine if p not in g] + r
+    them_after = [p for p in theirs if p not in r] + g
+    us = round(lineup_value(us_after) - lineup_value(mine), 1)
+    them = round(lineup_value(them_after) - lineup_value(theirs), 1)
+    verdict = ("good for both sides: worth offering" if us > 0 and them > 0 else
+               "good for us, but they lose value: they'd likely refuse" if us > 0 else
+               "bad for us: don't offer" if them > 0 else "bad for both sides")
+    return {"give": [(p["name"], p["pos"], round(p["ros"])) for p in g],
+            "get": [(p["name"], p["pos"], round(p["ros"])) for p in r],
+            "us": us, "them": them, "verdict": verdict}
+
+
+def cmd_trade(args, rankings, state):
+    def opt(name):
+        return [a for i, a in enumerate(args) if i and args[i - 1] == name]
+    give = [x for v in opt("--give") for x in v.split(";") if x.strip()]
+    get = [x for v in opt("--get") for x in v.split(";") if x.strip()]
+    mine = my_players(state, rankings)
+    if opt("--theirs"):
+        theirs = [parse(x, rankings) for x in " ~ ".join(opt("--theirs")).split("~") if x.strip()]
+    elif ESPN and opt("--team"):
+        theirs = [parse(x, rankings) for x in espn_fetch(team=int(opt("--team")[0]))]
+    else:
+        sys.exit("trade: pass --theirs '<spec> ~ ...' (or --team N on ESPN)")
+    print(json.dumps(trade_eval(mine, theirs, give, get)))
+
+
+def cmd_trade_ideas(args, rankings, state):
+    """1-for-1 trades where both sides' best lineup improves, best first (by the smaller side's gain)."""
+    mine = my_players(state, rankings)
+    teams = {}
+    for i, a in enumerate(args):
+        if a == "--team":
+            tid = args[i + 1]
+            nxt = args[i + 2] if i + 2 < len(args) and not args[i + 2].startswith("--") else ""
+            teams[tid] = [parse(x, rankings) for x in nxt.split("~") if x.strip()] if nxt else \
+                [parse(x, rankings) for x in espn_fetch(team=int(tid))]
+    if ESPN and not teams:
+        teams = {str(t): [parse(x, rankings) for x in specs] for t, specs in espn_fetch(all_teams=True).items() if t != ESPN_TEAM}
+    protected = set(RULES["protected"])
+    ideas = []
+    for tid, theirs in teams.items():
+        for a in mine:
+            if a["status"] in INJURED or not a["ranked"]:
+                continue
+            for b in theirs:
+                if b["status"] in INJURED or not b["ranked"] or abs(a["ros"] - b["ros"]) > 60:
+                    continue
+                t = trade_eval(mine, theirs, [a["name"]], [b["name"]])
+                if t["us"] > 0 and t["them"] > 0:
+                    ideas.append({"team": tid, **t, "protected_give": a["name"] in protected})
+    ideas.sort(key=lambda t: -min(t["us"], t["them"]))
+    seen, out = set(), []
+    for t in ideas:  # at most one idea per player we'd give
+        if t["give"][0][0] not in seen:
+            seen.add(t["give"][0][0]); out.append(t)
+    print(json.dumps(out[:5]))
+
+
 def next_question_number(prefix):
     text = LOG.read_text() if LOG.exists() else ""
     nums = [int(n) for n in re.findall(rf"\b{prefix}(\d+)\b", text)]
@@ -304,6 +453,8 @@ def next_question_number(prefix):
 
 def cmd_report(args, rankings, state):
     """Sync the roster from a read snippet's JSON, then print exactly what to do. Read-only apart from the sync."""
+    want_json = "--json" in args
+    args = [a for a in args if a != "--json"]
     if args[:1] == ["--fetch"]:
         if not ESPN:
             sys.exit("report --fetch is ESPN-only (Yahoo's API is blocked; use scripts/yahoo_read.js)")
@@ -335,6 +486,8 @@ def cmd_report(args, rankings, state):
     mine = my_players(state, rankings)
     fas = [parse(s.replace(" (waivers)", ""), rankings) for s in data.get("freeAgents", [])]
     actions, ask, fyi = [], [], []
+    # machine-readable twin of ACTIONS for scripts that apply them (yahoo_bot.py): `report --json ...`
+    plan_json = {"league": league.lower(), "date": today.isoformat(), "lineup": {}, "ir": [], "swaps": [], "ask": []}
 
     # injuries: injured players out of IR slots, healthy players stuck in IR slots
     n_ir = sum(1 for v in slot_of.values() if v in IR_SLOTS)
@@ -344,6 +497,7 @@ def cmd_report(args, rankings, state):
         if p["status"] in INJURED and slot not in IR_SLOTS:
             if n_ir < ir_cap:
                 actions.append(f"IR: move {p['name']} ({p['status']}) from {slot} to an IR slot")
+                plan_json["ir"].append(p["name"])
                 n_ir += 1
             else:
                 ask.append(f"{p['name']} is {p['status']} but all IR slots are full")
@@ -361,13 +515,14 @@ def cmd_report(args, rankings, state):
                 if p in ir:
                     continue  # handled above
                 if (cur in ACTIVE) != (new != "BE"):
+                    plan_json["lineup"][p["name"]] = new
                     actions.append(f"LINEUP (week of {monday}): {'start' if new != 'BE' else 'bench'} {p['name']} "
                                    f"({p['group']}, {p['games']} games, proj {p['week']:.1f}); now {cur}")
         else:
             fyi.append("ESPN lineup is locked mid-week; next lineup run is Sunday 21:00")
     else:
         playing = day_teams(today)
-        plan, goalies = yahoo_day_plan(mine, playing, slot_of)
+        plan, goalies = yahoo_day_plan(mine, playing, slot_of, goalie_status(today))
         # Only moves that change who plays: a playing player who should start but sits, or sits in a slot the
         # plan needs for someone else. Players without a game can stay wherever they are.
         by_name = {p["name"]: p for p in mine}
@@ -379,10 +534,14 @@ def cmd_report(args, rankings, state):
             out = [o for o, s in slot_of.items() if s == new and o not in plan and o in by_name]
             # the occupant to move out: someone in that slot type who isn't in today's plan
             vacate = f"; move {out[0]} to BN" if out and cur in ("BN", "") else ""
+            plan_json["lineup"][name] = new
+            if vacate:
+                plan_json["lineup"].setdefault(out[0], "BN")
             actions.append(f"LINEUP {today}: {name} ({p['pos']}, {p['team']}, FP/G {p['fpg']:.2f}) {cur} -> {new}{vacate}")
         if goalies:
-            fyi.append("Goalie: started " + goalies[0]["name"] + " (best FP/G with a game). Check Yahoo's 'Starting' tag / "
-                       "DailyFaceoff; if he's not the confirmed starter, swap in: " + (", ".join(g["name"] for g in goalies[1:]) or "nobody else plays"))
+            st = lambda g: {None: "not listed as today's starter", "": "listed, unconfirmed"}.get(g["start"], g["start"].lower())
+            fyi.append(f"Goalie: {goalies[0]['name']} ({st(goalies[0])} on DailyFaceoff)"
+                       + ("; others playing: " + ", ".join(f"{g['name']} ({st(g)})" for g in goalies[1:]) if goalies[1:] else ""))
         else:
             fyi.append("No goalie of ours plays today")
 
@@ -390,6 +549,9 @@ def cmd_report(args, rankings, state):
     found, used = swaps(mine, fas, state)
     for tag, gain, fa, d in found:
         line = f"add {fa['name']} ({fa['pos']}, {fa['team']}, ROS {fa['ros']:.0f}) / drop {d['name']} ({d['pos']}, ROS {d['ros']:.0f}) +{gain:.0f}"
+        if tag == "AUTO-OK" or gain >= RULES["min_ros_gain_fp"]:
+            plan_json["swaps" if tag == "AUTO-OK" else "ask"].append(
+                {"add": fa["name"], "drop": d["name"], "gain": round(gain), "add_pos": fa["pos"], "add_team": fa["team"]})
         if tag == "AUTO-OK":
             actions.append(f"ADD/DROP [AUTO-OK]: {line}; then `manage.py{' --league espn' if ESPN else ''} acq \"{fa['name']}\" \"{d['name']}\" --auto`")
         elif gain >= RULES["min_ros_gain_fp"]:
@@ -420,6 +582,10 @@ def cmd_report(args, rankings, state):
         print(f"\nTEXT DRAFT (edit to what actually happened): {tag}" + "; ".join(parts))
     else:
         print("\nTEXT DRAFT: none (quiet day, no text)")
+    if want_json:
+        plan_json["ask_text"] = ask
+        plan_json["question_prefix"], plan_json["next_question"] = prefix, n
+        print("\nPLAN_JSON " + json.dumps(plan_json))
 
 
 def main():
@@ -435,6 +601,10 @@ def main():
         show([parse(f"{r['name']}|{r['pos']}|{r['status']}|{r.get('team', '')}", rankings) for r in state["roster"]])
     elif cmd == "report":
         cmd_report(args, rankings, state)
+    elif cmd == "trade":
+        cmd_trade(args, rankings, state)
+    elif cmd == "trade-ideas":
+        cmd_trade_ideas(args, rankings, state)
     elif cmd == "lineup":
         cmd_lineup(args, rankings, state)
     elif cmd == "eval":
