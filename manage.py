@@ -548,8 +548,16 @@ def cmd_report(args, rankings, state):
 
     # free agents
     found, used = swaps(mine, fas, state)
+    # ESPN only accepts add/drops on Monday before the week's first game (HTTP 409 any other day):
+    # hold them, auto and ask alike, so Monday's run makes or raises them
+    hold = ESPN and today.weekday() != 0
     for tag, gain, fa, d in found:
         line = f"add {fa['name']} ({fa['pos']}, {fa['team']}, ROS {fa['ros']:.0f}) / drop {d['name']} ({d['pos']}, ROS {d['ros']:.0f}) +{gain:.0f}"
+        if hold:
+            if tag == "AUTO-OK" or gain >= RULES["min_ros_gain_fp"]:
+                plan_json.setdefault("held", []).append(f"[{tag}] {line}")
+                fyi.append(f"Held for Monday (ESPN add/drops are Monday-only): [{tag}] {line}")
+            continue
         if tag == "AUTO-OK" or gain >= RULES["min_ros_gain_fp"]:
             plan_json["swaps" if tag == "AUTO-OK" else "ask"].append(
                 {"add": fa["name"], "drop": d["name"], "gain": round(gain), "add_pos": fa["pos"], "add_team": fa["team"]})
@@ -582,7 +590,7 @@ def cmd_report(args, rankings, state):
         parts += [f"{prefix}{n + i}: {q.replace('[ASK] ', '')}?" for i, q in enumerate(ask)]
         print(f"\nTEXT DRAFT (edit to what actually happened): {tag}" + "; ".join(parts))
     else:
-        print("\nTEXT DRAFT: none (quiet day, no text)")
+        print("\nTEXT DRAFT (quiet day): check done, no actions needed.")
     if want_json:
         plan_json["ask_text"] = ask
         plan_json["question_prefix"], plan_json["next_question"] = prefix, n

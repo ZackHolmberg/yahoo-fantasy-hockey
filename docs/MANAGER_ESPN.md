@@ -6,6 +6,7 @@ Claude manages team **Suzuki For Hart** (team 5) in ESPN league **1034056432** (
 - **Scoring:** skaters PTS 1, PIM 0.5, PPP 1, SHP 1, GWG 1, SOG 0.1, HIT 0.1. Goalies W 3, SO 6 (no saves, no GA). Rankings: `espn/data/rankings.csv` (`LEAGUE=espn python3 project.py`, run from `espn/`).
 - **Roster:** 12 F (any forward), 6 D, 2 G, 4 bench, 2 IR. 24 players.
 - **Lineups lock weekly**, at the first game of each Mon-Sun week. Once the week's first game starts, the lineup is set for the week. So the lineup that matters is the one in place before Monday's first game.
+- **Add/drops are Monday-only**, before the week's first game. Any other day ESPN refuses them (HTTP 409 "Transaction type can only be executed in the current scoring period"), so the report holds them Tuesday to Sunday, auto and ask alike (FYI "Held for Monday", logged, not texted), and the Monday 10:30 run makes or raises them.
 - **Acquisitions:** waivers (1 day), max **7 per matchup week**, no season limit. A player added mid-week can only enter the lineup next week.
 - **Trades:** no review period, deadline Feb 26, 2027.
 

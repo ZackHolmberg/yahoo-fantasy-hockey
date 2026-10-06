@@ -123,6 +123,9 @@ def yahoo():
     log_line("yahoo", "Auto run: " + summary)
     if facts:
         text_owner(phrase(facts, ""))
+    else:  # the owner wants to know the check ran even when there's nothing to do
+        mode = sys.argv[2] if len(sys.argv) > 2 else "morning"
+        text_owner(f"Yahoo {mode} check done: lineup already right, no actions needed.")
     return r.stdout, False
 
 
@@ -134,6 +137,8 @@ def espn():
         text_owner("ESPN: auto run failed: " + err[0][:200])
         return r.stdout + r.stderr, False
     plan = json.loads(r.stdout.split("PLAN_JSON ", 1)[1])
+    if plan.get("held"):  # add/drops are Monday-only on ESPN: log what waits, don't text about it
+        log_line("espn", "Held for Monday's run (add/drops are Monday-only): " + "; ".join(plan["held"])[:300])
     if plan["lineup"] or plan["ir"] or plan["swaps"]:
         w = run([sys.executable, "espn_bot.py", "apply"], timeout=600)
         if "RESULT_JSON " not in w.stdout:
@@ -157,6 +162,8 @@ def espn():
         if facts:
             log_line("espn", "Auto run: " + " ".join(facts))
             text_owner(phrase(facts, "ESPN: "))
+        else:
+            text_owner(espn_quiet(plan))
         return r.stdout + w.stdout, False
     facts = questions(plan, "espn")
     facts += [s + "." for s in plan.get("ask_text", []) if not s.startswith("[ASK]")]
@@ -164,7 +171,16 @@ def espn():
     log_line("espn", "Auto run: " + (" ".join(facts) or "quiet day, nothing to do."))
     if facts:
         text_owner(phrase(facts, "ESPN: "))
+    else:
+        text_owner(espn_quiet(plan))
     return r.stdout, False
+
+
+def espn_quiet(plan):
+    """Quiet-day text: the owner wants to know the check ran even when there's nothing to do."""
+    held = len(plan.get("held", []))
+    return ("ESPN check done: no actions needed" +
+            (f" ({held} add/drop{'s' * (held != 1)} held for Monday)." if held else "."))
 
 
 def main():
