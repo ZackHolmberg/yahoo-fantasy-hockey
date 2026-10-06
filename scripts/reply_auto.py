@@ -9,11 +9,13 @@
    trade-ideas. Trades are never sent (owner-only), so the reply includes a ready-to-paste note.
 5. Reply: the LLM phrases the answer from what the scripts found; logged in the league's season log.
 """
+import contextlib
 import json
 import os
 import re
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
@@ -99,6 +101,36 @@ def yahoo_team_id(name):
     return int(m.group(1)) if m else None
 
 
+class BusyError(Exception):
+    pass
+
+
+@contextlib.contextmanager
+def run_lock():
+    """The scheduled runs' lock, held only around the bots (they share one browser profile and change rosters),
+    not around the LLM: it thinks for minutes, and a scheduled run gives up after waiting 10 min for the lock."""
+    lock = REPO / "data/.run.lock"
+    for _ in range(60):
+        try:
+            lock.mkdir()
+            break
+        except FileExistsError:
+            time.sleep(10)
+    else:
+        raise BusyError
+    try:
+        yield
+    finally:
+        lock.rmdir()
+
+
+def bot(league, *args, timeout=180):
+    """yahoo_bot.py / espn_bot.py under the run lock."""
+    exe = [str(REPO / ".venv/bin/python"), "yahoo_bot.py"] if league == "yahoo" else [sys.executable, "espn_bot.py"]
+    with run_lock():
+        return run(exe + list(args), timeout=timeout)
+
+
 def handle(text):
     qs = open_questions()
     context = ("Open questions:\n" + ("\n".join(f"{k}: add {v['add']} ({v['info']}), drop {v['drop']}" for k, v in qs.items()) or "none")
@@ -120,8 +152,7 @@ def handle(text):
         if kind == "reject":
             log(league, f"Resolved {refs[0]}: owner declined add {q['add']} / drop {q['drop']}.")
             return league, f"{'ESPN: ' if league == 'espn' else ''}OK, skipping {refs[0]} (keeping {q['drop']})."
-        bot = ([str(REPO / ".venv/bin/python"), "yahoo_bot.py"] if league == "yahoo" else [sys.executable, "espn_bot.py"])
-        r = run(bot + ["swap", q["add"], q["drop"]] + (["--dry-run"] if DRY else []), timeout=600)
+        r = bot(league, "swap", q["add"], q["drop"], *(["--dry-run"] if DRY else []), timeout=600)
         res = json.loads(r.stdout.split("RESULT_JSON ", 1)[1]) if "RESULT_JSON " in r.stdout else {"did": [], "skipped": [r.stderr[-200:] or "bot failed"]}
         if res["did"]:
             log(league, f"Resolved {refs[0]}: owner approved; " + "; ".join(res["did"]))
@@ -138,7 +169,7 @@ def handle(text):
                 teams = []
                 for n in range(1, 13):
                     if n != 11:
-                        t = run([str(REPO / ".venv/bin/python"), "yahoo_bot.py", "team", str(n)], timeout=180).stdout.strip()
+                        t = bot("yahoo", "team", str(n)).stdout.strip()
                         if t:
                             teams += ["--team", f"T{n}", t]
                 r = run(mg + ["trade-ideas"] + teams, timeout=600)
@@ -154,7 +185,7 @@ def handle(text):
                 tid = yahoo_team_id(other)
                 if not tid:
                     return league, f"Which team is \"{other}\"? Use its number, e.g. T4."
-                theirs = run([str(REPO / ".venv/bin/python"), "yahoo_bot.py", "team", str(tid)], timeout=180).stdout.strip()
+                theirs = bot("yahoo", "team", str(tid)).stdout.strip()
                 r = run(mg + ["trade", "--give", ";".join(give), "--get", ";".join(get), "--theirs", theirs])
             else:
                 m = re.search(r"\d{1,2}", other)
@@ -195,22 +226,12 @@ def main():
     text = " ".join(sys.argv[1:]).strip()
     if not text:
         sys.exit(__doc__)
-    lock = REPO / "data/.run.lock"  # same lock as the scheduled runs: never act on a roster mid-run
-    for _ in range(60):
-        try:
-            lock.mkdir()
-            break
-        except FileExistsError:
-            __import__("time").sleep(10)
-    else:
-        send("Busy with a scheduled run; send that again in a few minutes.")
-        return
     try:
         league, reply = handle(text)
+    except BusyError:
+        league, reply = None, "Busy with a scheduled run; send that again in a few minutes."
     except Exception as e:  # LLM down or unparseable: say so instead of going quiet
         league, reply = None, f"Sorry, I couldn't process that ({type(e).__name__}). Try again, or rephrase."
-    finally:
-        lock.rmdir()
     send(reply)
     if league:
         log(league, f"Owner texted: {text[:200]} | replied: {reply[:300]}")

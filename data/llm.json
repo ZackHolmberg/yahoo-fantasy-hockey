@@ -1,5 +1,6 @@
 {
-  "_comment": "LLM driver for every script (llm.py): \"local\" = Qwen on this Mac, \"claude\" = claude CLI (claude_model). Nothing else needs changing to switch.",
+  "_comment": "LLM driver for every script (llm.py): \"local\" = Qwen on this Mac, \"claude\" = claude CLI (claude_model). Nothing else needs changing to switch. The local model always thinks; think_tokens is each call's reasoning budget (~22 tokens/s, so 8192 is ~6 min).",
   "driver": "local",
-  "claude_model": "sonnet"
+  "claude_model": "sonnet",
+  "think_tokens": 8192
 }

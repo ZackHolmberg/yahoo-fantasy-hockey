@@ -7,6 +7,9 @@
     llm.complete("prompt")                       # -> text
     llm.complete_json("prompt")                  # -> dict (asks for JSON, extracts the first object, retries once)
 
+The local model always thinks (intelligence over speed). Each call gets "think_tokens" (data/llm.json) on top of
+max_tokens for its reasoning; if that runs out mid-thought, the reasoning so far is handed back for the final answer.
+
 The LLM only reads and writes text: it understands the owner's messages, explains numbers the scripts computed,
 and phrases texts. Every action is decided and checked by the scripts, whatever the driver.
 """
@@ -48,14 +51,32 @@ def _local_model():
     raise RuntimeError("local model server didn't start (see ~/dev/claude-local-llm, `llm logs`)")
 
 
-def _local(prompt, system, max_tokens):
-    messages = ([{"role": "system", "content": system}] if system else []) + \
-               [{"role": "user", "content": prompt + "\n/no_think"}]
-    body = {"model": _local_model(), "messages": messages, "max_tokens": max_tokens, "temperature": 0.2}
+def _chat(messages, max_tokens, think):
+    # enable_thinking is the switch Qwen3.5 obeys (it ignores /no_think); its reasoning comes back in "reasoning".
+    # Thinking uses Qwen's recommended sampling: at low temperature it loops ("Wait, check again...").
+    sampling = {"temperature": 0.6, "top_p": 0.95, "top_k": 20, "presence_penalty": 1.5} if think else {"temperature": 0.2}
+    body = {"model": _local_model(), "messages": messages, "max_tokens": max_tokens, **sampling,
+            "chat_template_kwargs": {"enable_thinking": think}}
     req = urllib.request.Request(f"{LOCAL}/v1/chat/completions", data=json.dumps(body).encode(),
                                  headers={"Content-Type": "application/json"})
-    out = json.load(urllib.request.urlopen(req, timeout=300))["choices"][0]["message"]["content"]
-    return out.split("</think>")[-1].strip()
+    return json.load(urllib.request.urlopen(req, timeout=1200))["choices"][0]
+
+
+def _local(prompt, system, max_tokens, think_tokens):
+    """Always thinks: answers are worth more than speed here (~22 tokens/s, so a full budget is ~6 min)."""
+    messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
+    choice = _chat(messages, max_tokens + think_tokens, True)
+    out = (choice["message"].get("content") or "").split("</think>")[-1].strip()
+    reasoning = (choice["message"].get("reasoning") or "").strip()
+    if not out and reasoning:
+        # it ran out of budget mid-thought (usually re-checking a finished answer in a loop):
+        # keep the reasoning and have it write the final answer from it, rather than start over without it
+        messages[-1]["content"] += (f"\n\nYour analysis so far (it ran out of room before answering):\n"
+                                    f"{reasoning[:16000]}\n\nWrite only the final answer now.")
+        out = (_chat(messages, max_tokens, False)["message"].get("content") or "").strip()
+    if not out:
+        raise RuntimeError(f"local model returned no content (finish_reason={choice.get('finish_reason')})")
+    return out
 
 
 def _claude(prompt, system, max_tokens, model):
@@ -71,7 +92,7 @@ def complete(prompt, system=None, max_tokens=600):
     c = config()
     if c.get("driver") == "claude":
         return _claude(prompt, system, max_tokens, c.get("claude_model", "sonnet"))
-    return _local(prompt, system, max_tokens)
+    return _local(prompt, system, max_tokens, int(c.get("think_tokens", 8192)))
 
 
 def complete_json(prompt, system=None, max_tokens=600):
