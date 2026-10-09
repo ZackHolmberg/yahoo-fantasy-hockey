@@ -51,7 +51,8 @@ relaunch() {
   /usr/bin/osascript -e 'with timeout of 15 seconds' -e 'tell application "Messages" to quit' -e 'end timeout' 2>/dev/null
   sleep 3
   pkill -x Messages 2>/dev/null && sleep 2
-  /usr/bin/open -g -a Messages
+  # not `open -g`: a background launch comes back running but deaf to AppleScript (-1712 on everything)
+  /usr/bin/open -a Messages
   # wait until it answers AppleScript again
   for i in {1..15}; do
     /usr/bin/osascript -e 'with timeout of 5 seconds' -e 'tell application "Messages" to count of every chat' -e 'end timeout' >/dev/null 2>&1 && return 0

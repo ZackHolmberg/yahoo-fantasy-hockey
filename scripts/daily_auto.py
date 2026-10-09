@@ -13,10 +13,12 @@ import re
 import subprocess
 import sys
 import urllib.request
-from datetime import datetime
+from datetime import date, datetime
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(REPO))
+import moves  # noqa: E402
 LOG_DIR = REPO / "data/run_logs"
 
 
@@ -129,12 +131,37 @@ def yahoo():
     return r.stdout, False
 
 
+def espn_queued():
+    """Monday: make the owner's add/drops queued mid-week (scripts/reply_auto.py), re-picking 'best available' now."""
+    queue = moves.load_queue()
+    if not queue or date.today().weekday() != 0:
+        return []
+    try:
+        plan = moves.espn_plan()
+    except RuntimeError as e:
+        return [f"Couldn't make your queued moves ({e}); they stay queued."]
+    facts, taken = [], set()
+    for m in queue:
+        d, a, why = moves.pick(plan, m["drop"], m.get("add"), m.get("position", ""), m.get("only_if_better", False), taken)
+        if why:
+            facts.append(f"Queued move not made, kept {d['name'] if d else m['drop']}: {why}.")
+            continue
+        taken.add(a["name"])
+        w = run([sys.executable, "espn_bot.py", "swap", a["name"], d["name"]], timeout=600)
+        res = json.loads(w.stdout.split("RESULT_JSON ", 1)[1]) if "RESULT_JSON " in w.stdout else {"did": [], "skipped": [(w.stdout + w.stderr).strip()[-200:]]}
+        facts.append(("Your queued move: " + "; ".join(res["did"]) + ".") if res["did"]
+                     else f"Your queued move failed ({moves.describe(d, a)}): " + "; ".join(res["skipped"])[:200] + ".")
+    moves.save_queue([])  # made or reported either way; the owner can ask again
+    return facts
+
+
 def espn():
+    queued = espn_queued()  # before the report, so it plans around the new roster
     r = run([sys.executable, "manage.py", "--league", "espn", "report", "--fetch", "--json"], timeout=300)
     if "PLAN_JSON " not in r.stdout:
         err = (r.stdout + r.stderr).strip().splitlines()[-1:] or ["unknown error"]
-        log_line("espn", f"Auto run failed: {err[0]}")
-        text_owner("ESPN: auto run failed: " + err[0][:200])
+        log_line("espn", " ".join(queued + [f"Auto run failed: {err[0]}"]))
+        text_owner("ESPN: " + " ".join(queued + ["Auto run failed: " + err[0][:200]]))
         return r.stdout + r.stderr, False
     plan = json.loads(r.stdout.split("PLAN_JSON ", 1)[1])
     if plan.get("held"):  # add/drops are Monday-only on ESPN: log what waits, don't text about it
@@ -147,7 +174,7 @@ def espn():
             text_owner("ESPN: changes failed: " + err[0][:200])
             return r.stdout + w.stdout + w.stderr, False
         res = json.loads(w.stdout.split("RESULT_JSON ", 1)[1])
-        facts = [d[0].upper() + d[1:] + "." for d in res["did"]]
+        facts = queued + [d[0].upper() + d[1:] + "." for d in res["did"]]
         # a locked weekly lineup is expected (e.g. Sunday): log it, retry next run, don't text about it alone
         locked = [x for x in res["skipped"] if "is locked" in x]
         skipped = [x for x in res["skipped"] if x not in locked]
@@ -165,7 +192,7 @@ def espn():
         else:
             text_owner(espn_quiet(plan))
         return r.stdout + w.stdout, False
-    facts = questions(plan, "espn")
+    facts = queued + questions(plan, "espn")
     facts += [s + "." for s in plan.get("ask_text", []) if not s.startswith("[ASK]")]
     facts += trade_ideas("espn")
     log_line("espn", "Auto run: " + (" ".join(facts) or "quiet day, nothing to do."))

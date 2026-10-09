@@ -489,6 +489,11 @@ def cmd_report(args, rankings, state):
     actions, ask, fyi = [], [], []
     # machine-readable twin of ACTIONS for scripts that apply them (yahoo_bot.py): `report --json ...`
     plan_json = {"league": league.lower(), "date": today.isoformat(), "lineup": {}, "ir": [], "swaps": [], "ask": []}
+    # for owner-directed moves ("drop X, add the best D"): our roster and the ranked, healthy FA pool, best first
+    brief = lambda p: {k: p[k] for k in ("name", "pos", "group", "status", "ros", "team")}
+    plan_json["roster"] = [brief(p) for p in mine]
+    plan_json["fas"] = [brief(f) for f in sorted(fas, key=lambda f: -f["ros"])
+                        if f["ranked"] and f["status"] not in INJURED][:60]
 
     # injuries: injured players out of IR slots, healthy players stuck in IR slots
     n_ir = sum(1 for v in slot_of.values() if v in IR_SLOTS)
@@ -540,7 +545,7 @@ def cmd_report(args, rankings, state):
                 plan_json["lineup"].setdefault(out[0], "BN")
             actions.append(f"LINEUP {today}: {name} ({p['pos']}, {p['team']}, FP/G {p['fpg']:.2f}) {cur} -> {new}{vacate}")
         if goalies:
-            st = lambda g: {None: "not listed as today's starter", "": "listed, unconfirmed"}.get(g["start"], g["start"].lower())
+            st = lambda g: {None: "not listed as today's starter", "": "listed, unconfirmed"}.get(g["start"]) or g["start"].lower()
             fyi.append(f"Goalie: {goalies[0]['name']} ({st(goalies[0])} on DailyFaceoff)"
                        + ("; others playing: " + ", ".join(f"{g['name']} ({st(g)})" for g in goalies[1:]) if goalies[1:] else ""))
         else:
