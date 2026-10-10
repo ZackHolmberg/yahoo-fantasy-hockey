@@ -2,6 +2,8 @@
 # Text the owner via Messages.app. Usage: scripts/imessage_send.sh "message"
 # If the send errors (Messages.app wedges after days of uptime: AppleEvent -1712 / -10000), quit and
 # relaunch Messages, then retry once, unless chat.db shows the first attempt went out after all.
+# If that fails too, the text is queued in data/imessage_outbox.jsonl; imessage_poll.py (launchd, every 2 min)
+# resends it. A relaunch from inside a headless Claude run can leave Messages deaf; one from launchd works.
 cd /Users/zackholmberg/dev/yahoo-fantasy-hockey || exit 1
 HANDLE=$(/usr/bin/python3 -c 'import json;print(json.load(open("data/imessage.json"))["handle"])')
 PREFIX=$(/usr/bin/python3 -c 'import json;print(json.load(open("data/imessage.json"))["prefix"],end="")')
@@ -65,8 +67,15 @@ send && exit 0
 echo "imessage_send: send failed; relaunching Messages.app and retrying once" >&2
 sleep 5
 already_sent && { echo "imessage_send: first attempt was delivered after all; not resending" >&2; exit 0; }
-relaunch || { echo "imessage_send: Messages.app did not come back after relaunch" >&2; exit 1; }
+# queue for imessage_poll.py unless this is its own resend (it keeps the message queued itself)
+queue() {
+  [[ -n ${IMESSAGE_NO_QUEUE:-} ]] && exit 1
+  /usr/bin/python3 -c 'import json,sys,time;print(json.dumps([time.time(),sys.argv[1]]))' "$1" >> data/imessage_outbox.jsonl
+  echo "imessage_send: queued; imessage_poll.py resends it within a few minutes" >&2
+  exit 0
+}
+relaunch || { echo "imessage_send: Messages.app did not come back after relaunch" >&2; queue "$1"; }
 already_sent && { echo "imessage_send: first attempt was delivered after all; not resending" >&2; exit 0; }
 send && { echo "imessage_send: sent on retry" >&2; exit 0; }
 echo "imessage_send: retry failed too" >&2
-exit 1
+queue "$1"

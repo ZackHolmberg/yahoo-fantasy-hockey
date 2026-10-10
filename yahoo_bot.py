@@ -17,7 +17,7 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import TimeoutError as PlaywrightTimeout, sync_playwright
 
 REPO = Path(__file__).resolve().parent
 PROFILE = REPO / "data/yahoo_profile"
@@ -64,11 +64,13 @@ SET_LINEUP_JS = """(moves) => {
   const form = [...document.forms].find(f => /editroster/.test(f.action));
   if (!form) return {error: 'edit-roster form not found'};
   const done = [], skipped = [];
-  for (const [pid, name, slot] of moves) {
+  for (let [pid, name, slot] of moves) {
     const sel = form.querySelector(`select[name="${pid}"]`);
     const row = sel && sel.closest('tr');
     const shown = row && (row.querySelector('a[class*="name"]') || {}).textContent;
     if (!sel || (shown || '').trim() !== name) { skipped.push(`${name}: row/name mismatch`); continue; }
+    const has = v => [...sel.options].some(o => o.value === v);
+    if (slot === 'IR' && !has('IR') && has('IR+')) slot = 'IR+';  // status O only fits IR+ in this league
     if (![...sel.options].some(o => o.value === slot)) { skipped.push(`${name}: ${slot} not allowed (${[...sel.options].map(o => o.value)})`); continue; }
     sel.value = slot; done.push(`${name} -> ${slot}`);
   }
@@ -107,25 +109,21 @@ def apply(page, data, plan, dry, approved=False):
     # lineup + IR in one edit-roster submit
     moves = [[pids.get(n, ""), n, s] for n, s in plan["lineup"].items()]
     for n in plan["ir"]:
-        moves.append([pids.get(n, ""), n, "IR"])  # tried as IR, then IR+ below if Yahoo only allows that
+        moves.append([pids.get(n, ""), n, "IR"])  # SET_LINEUP_JS falls back to IR+ if Yahoo only allows that
     if moves:
         if dry:
             did += [f"(dry run) {n} -> {s}" for _, n, s in moves]
         else:
             page.goto(f"{BASE}{LEAGUE}/{TEAM}/team?date={data['today']}", wait_until="domcontentloaded")
-            res = page.evaluate(SET_LINEUP_JS, moves)
+            try:  # wait for the submit's navigation, or the next goto aborts it (net::ERR_ABORTED)
+                with page.expect_navigation(wait_until="load", timeout=30000):
+                    res = page.evaluate(SET_LINEUP_JS, moves)
+            except PlaywrightTimeout:  # nothing was submitted (no move applied, or no form)
+                pass
             if res.get("error"):
                 skipped.append("lineup: " + res["error"])
             else:
-                retry = [[pids.get(n, ""), n, "IR+"] for n in plan["ir"] if any(x.startswith(f"{n}: IR not allowed") for x in res["skipped"])]
-                res["skipped"] = [x for x in res["skipped"] if not any(x.startswith(f"{r[1]}: IR not allowed") for r in retry)]
-                page.wait_for_load_state("domcontentloaded")
                 did += res["done"]; skipped += res["skipped"]
-                if retry:
-                    page.goto(f"{BASE}{LEAGUE}/{TEAM}/team?date={data['today']}", wait_until="domcontentloaded")
-                    r2 = page.evaluate(SET_LINEUP_JS, retry)
-                    page.wait_for_load_state("domcontentloaded")
-                    did += r2.get("done", []); skipped += r2.get("skipped", []) + ([r2["error"]] if r2.get("error") else [])
 
     # AUTO-OK add/drops, one at a time, names checked on Yahoo's add page before submitting
     for sw in plan["swaps"]:

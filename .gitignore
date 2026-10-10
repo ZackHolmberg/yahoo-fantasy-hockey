@@ -23,6 +23,7 @@ data/season_state.json
 data/season_log.md
 data/imessage.json
 data/imessage_state.json
+data/imessage_outbox.jsonl
 data/team_aliases.json
 
 # ESPN league runtime state (see docs/MANAGER_ESPN.md)
