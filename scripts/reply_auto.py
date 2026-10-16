@@ -40,6 +40,8 @@ and output what they want as JSON. You never decide moves yourself. Output exact
  "drop": [our players to drop, for a move], "add": [players to pick up, for a move; empty = best available],
  "position": "position wanted for the pickup (F, D, G, C, LW, RW) or empty for the dropped player's",
  "only_if_better": true if the move should only happen when a free agent is better than the dropped player,
+ "drop_least": true if the owner wants a roster spot opened (or a player activated off IR) and leaves WHO to drop to
+   the bot ("drop whoever brings the least", "you decide who to drop"), with no player named,
  "give": [our players offered in a trade], "get": [players wanted from the other team],
  "other_team": "the other team as written (e.g. T4, Thumb, 2, OSG) or empty",
  "question": "the owner's question restated in one line, or empty"}
@@ -50,7 +52,8 @@ reject. Asking to drop someone and/or pick someone up ("drop X and grab the best
 we find someone better" or "if there's anyone better" sets only_if_better. A message about keeping or benching a
 player with no move asked for is question. Resolve "him", "that guy" etc. from the recent log lines (the bot's
 latest texts to the owner), and set league from them when the message doesn't say.
-"what about X for Y", "would T4 do X for Y" is trade_eval. "any trade ideas" is trade_ideas. If the message names
+A reply to the bot's question "can't activate X, drop someone?" that says yes / you pick is a move with drop_least
+true and league from that log line. "what about X for Y", "would T4 do X for Y" is trade_eval. "any trade ideas" is trade_ideas. If the message names
 no label but clearly matches exactly one open question, put that label in refs.
 
 Examples:
@@ -64,6 +67,8 @@ msg: "Marchand is out for the season, drop him and pick up the next best forward
 {"league":"unknown","intent":"move","refs":[],"drop":["Brad Marchand"],"add":[],"position":"F","only_if_better":false,"give":[],"get":[],"other_team":"","question":""}
 open: E4 add Joel Hofer drop Brandon Bussi | msg: "keep Demidov on the bench unless we find a better free agent to replace him"
 {"league":"unknown","intent":"move","refs":[],"drop":["Ivan Demidov"],"add":[],"position":"","only_if_better":true,"give":[],"get":[],"other_team":"","question":""}
+recent log: Bowen Byram is healthy but in IR+: activating needs a roster spot (drop someone?) | msg: "Yes open a spot, drop whoever brings the least to our lineup"
+{"league":"yahoo","intent":"move","refs":[],"drop":[],"add":[],"position":"","only_if_better":false,"drop_least":true,"give":[],"get":[],"other_team":"","question":""}
 msg: "why is bussi starting over wedgewood in espn"
 {"league":"espn","intent":"question","refs":[],"give":[],"get":[],"other_team":"","question":"Why is Bussi starting over Wedgewood?"}"""
 
@@ -157,10 +162,33 @@ def league_plan(league):
     return json.loads(r.stdout.split("RESULT_JSON ", 1)[1].strip().splitlines()[0])["plan"]
 
 
+def spare(league, text):
+    """"Open a spot, you pick who goes": let the report activate anyone waiting in IR if a spot is already open;
+    else name the player whose loss costs the lineup least (no add: this code has no pure drop yet)."""
+    prefix = "ESPN: " if league == "espn" else ""
+    if league == "yahoo":
+        r = bot("yahoo", "apply", *(["--dry-run"] if DRY else []), timeout=900)
+        if "RESULT_JSON " in r.stdout:
+            res = json.loads(r.stdout.split("RESULT_JSON ", 1)[1])
+            if res["did"]:
+                log(league, f"Owner asked to open a spot: {text[:200]} | " + "; ".join(res["did"]))
+                return league, "Done: " + "; ".join(res["did"]) + ". A roster spot was already open, so nobody was dropped."
+            if not any("needs a roster spot" in a for a in res["plan"].get("ask_text", [])):
+                return league, "Nothing needed: no one is waiting to be activated."
+    spare_list = json.loads(run([sys.executable, "manage.py"] + (["--league", "espn"] if league == "espn" else []) + ["spare"]).stdout)
+    low = spare_list[0]
+    log(league, f"Owner asked to open a spot ({text[:120]}); least costly drop is {low['name']}, not dropped: no pure-drop support.")
+    return league, (f"{prefix}The roster is full. Dropping {low['name']} ({low['pos']}, ROS {low['ros']}) costs the lineup "
+                    f"the least ({low['cost']:+.0f} FP), but I can only drop as part of a pickup. Want me to drop him and add "
+                    "the best free agent at his position?")
+
+
 def move(intent, text, league):
     """Owner-directed add/drops: the owner asking is the approval; moves.pick chooses the player."""
     drops = [d for d in intent.get("drop") or [] if isinstance(d, str) and d.strip()]
     adds = [a for a in intent.get("add") or [] if isinstance(a, str) and a.strip()]
+    if not drops and intent.get("drop_least"):
+        return spare(league if league in ("yahoo", "espn") else "yahoo", text)
     if not drops:
         return None, "Who should I drop? e.g. \"drop Marchand, add the best F\"."
     if league not in ("yahoo", "espn"):  # whichever of our rosters has the dropped players

@@ -211,6 +211,7 @@ ESPN_SLOTS = {"F": 12, "D": 6, "G": 2}
 YAHOO_SLOTS = ["C", "C", "LW", "LW", "RW", "RW", "D", "D", "D", "D"]  # plus one G; no Util
 ACTIVE = {"C", "LW", "RW", "D", "G", "F", "UTIL"}
 IR_SLOTS = {"IR", "IR+", "NA"}
+YAHOO_ROSTER_SPOTS = 16
 
 
 def day_teams(day):
@@ -496,6 +497,7 @@ def cmd_report(args, rankings, state):
                         if f["ranked"] and f["status"] not in INJURED][:60]
 
     # injuries: injured players out of IR slots, healthy players stuck in IR slots
+    activate = []  # healthy players sitting in IR slots while a roster spot is open
     n_ir = sum(1 for v in slot_of.values() if v in IR_SLOTS)
     ir_cap = 2 if ESPN else 3
     for p in mine:
@@ -508,7 +510,11 @@ def cmd_report(args, rankings, state):
             else:
                 ask.append(f"{p['name']} is {p['status']} but all IR slots are full")
         elif slot in IR_SLOTS and p["status"] not in INJURED and slot != "NA":
-            ask.append(f"{p['name']} is healthy ({p['status'] or 'active'}) but in {slot}: activating needs a roster spot (drop someone?)")
+            # Yahoo: 16 non-IR spots (10 skaters + G + 5 BN); activating him only needs a drop when they're all taken
+            if ESPN or sum(1 for v in slot_of.values() if v not in IR_SLOTS) >= YAHOO_ROSTER_SPOTS:
+                ask.append(f"{p['name']} is healthy ({p['status'] or 'active'}) but in {slot}: activating needs a roster spot (drop someone?)")
+            else:
+                activate.append(p["name"])
 
     # lineup
     if ESPN:
@@ -550,6 +556,11 @@ def cmd_report(args, rankings, state):
                        + ("; others playing: " + ", ".join(f"{g['name']} ({st(g)})" for g in goalies[1:]) if goalies[1:] else ""))
         else:
             fyi.append("No goalie of ours plays today")
+
+    for name in activate:  # off IR into the lineup slot the plan gave him, else the bench
+        if name not in plan_json["lineup"]:
+            plan_json["lineup"][name] = "BN"
+            actions.append(f"LINEUP {today}: {name} {slot_of.get(name)} -> BN (healthy, and a roster spot is open)")
 
     # free agents
     found, used = swaps(mine, fas, state)
@@ -629,6 +640,12 @@ def main():
         state["adds"].append({"date": date.today().isoformat(), "add": add, "drop": drop, "auto": auto})
         save_state(state)
         print(f"recorded: +{add} / -{drop}{' (auto)' if auto else ''}; this week {len(week_adds(state))}")
+    elif cmd == "spare":  # who costs the best lineup least to drop (owner: "drop whoever brings the least")
+        mine = my_players(state, rankings)
+        base = lineup_value(mine)
+        cost = sorted(((round(base - lineup_value([q for q in mine if q is not p]), 1), p) for p in mine
+                       if p["status"] not in INJURED), key=lambda c: (c[0], c[1]["ros"]))
+        print(json.dumps([{"name": p["name"], "pos": p["pos"], "ros": round(p["ros"]), "cost": c} for c, p in cost]))
     elif cmd == "week":
         adds = week_adds(state)
         print(f"{len(adds)}/{RULES['league_max_adds_per_week']} this week")
