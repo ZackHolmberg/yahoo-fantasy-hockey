@@ -1,0 +1,45 @@
+{
+  "baseline_sha256": "95f54d018cb71917c1675fb0dcfbedaf265959bd279affabe1baa0301a8ef5fe",
+  "inputs_sha256": "a4ce66fb3b1cf96ff35bb1631cd8d679fdf7acbcc0e750cee68174f2ff529558",
+  "source_sha256": {
+    "hybrid.py": "e4b866963e2c66fdd3b9856795cd340ebbb9b939ee2a731460e6f2d7a07e1308",
+    "hybrid_backtest.py": "4bf10b3c928afe2509a292bbbf07ef09a2ee2a262b61acea8dadd5abe2debd4e",
+    "BASKETBALL_HYBRID_PROTOCOL.md": "7b0b7973984650846deb1b7f744a86bf9bd85c08193859fa4538ee71b262b83a"
+  },
+  "config": {
+    "teams": 16,
+    "slots": {
+      "PG": 1,
+      "SG": 1,
+      "SF": 1,
+      "PF": 1,
+      "C": 1,
+      "G": 1,
+      "F": 1,
+      "UTIL": 2,
+      "BE": 3,
+      "IR": 2
+    },
+    "position_limits": {
+      "C": 4
+    },
+    "scoring": {
+      "FGM": 2,
+      "FGA": -1,
+      "FTM": 1,
+      "FTA": -1,
+      "3PM": 1,
+      "REB": 1,
+      "AST": 2,
+      "STL": 3,
+      "BLK": 3,
+      "TO": -2,
+      "PTS": 1
+    },
+    "format": "points"
+  },
+  "decision_sha256": "5b4cd53c4514010bd4fd8765177edc3e13a2195f2050f743b1d92a4f46909e84",
+  "cases": 1440,
+  "new_full_leagues": 576,
+  "pre_registered_commit": "c62b325"
+}
