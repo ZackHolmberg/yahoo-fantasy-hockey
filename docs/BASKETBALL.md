@@ -8,6 +8,27 @@ starting-nine totals than the archived ESPN comparison. The picker is not ready
 for unattended real drafting. Read [the results](BASKETBALL_BACKTEST_RESULTS.md)
 and [the frozen evaluation protocol](BASKETBALL_BACKTEST_PROTOCOL.md).
 
+The [enriched strategy experiment](BASKETBALL_STRATEGY_RESULTS.md) compares ten
+common policies across four seasons, with independent ranks/projections and
+2025-26 held out from strategy selection. Its [registered protocol](BASKETBALL_STRATEGY_PROTOCOL.md)
+defines the data, fixed parameters, opponent models and limitations. These are
+deterministic Python simulations with fixed seeds; the operator does not choose
+historical picks manually. Historical rankings are a market proxy, not actual ADP.
+
+```sh
+python -m pip install pdfplumber
+python -m basketball.strategy_lab prepare
+python -m basketball.strategy_lab draft
+python -m basketball.strategy_lab develop
+python -m basketball.strategy_lab test
+```
+
+The phases separately collect pre-draft inputs, lock decisions, select using only
+development seasons, and score the chronological test. Changed sources/inputs
+invalidate the lock. The experiment saves captures, complete league rosters,
+checksums and scored rows under ignored `basketball/data/strategy-lab/`. The
+production picker is not changed or automatically replaced by an experiment winner.
+
 ## This league
 
 Settings were read from the signed-in ESPN league settings page on **October 16,
