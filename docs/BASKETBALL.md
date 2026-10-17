@@ -141,17 +141,74 @@ Record all auction spending and team IDs for meaningful league-inflation estimat
 This league uses a snake draft; auction tools are available for configurations
 with `draft.type` set to `auction`.
 
-### Browser picks, queue and bids
+### API picks, queue and bids
 
 ```sh
 python -m basketball draft pick "Player Name"
 python -m basketball draft queue "Player Name"
 python -m basketball draft bid "Player Name" --amount 20
+python -m basketball draft status
+python -m basketball draft pick "Player Name" --execute
+python -m basketball draft queue "Player Name" --execute
+python -m basketball draft watch --execute
 ```
 
-These commands preview by default. Add `--execute` for a real browser action.
-`draft watch --slot 3 --execute` can pick on your snake turns. It polls the draft
-view, then independently verifies the visible room before clicking.
+Pick, queue and bid commands preview by default. With `--execute`, they use
+ESPN's live **WebSocket draft API**. No browser controls are needed for execution.
+`draft watch --execute` maintains a connection, updates the model from server
+events, and selects the best legal player on your snake turns. It reads current
+rules and projections from `draftInit`; it does not require a prior snapshot.
+Live turn ownership comes from the server, including traded picks, rather than
+assuming a slot number. `--slot` only influences ADP timing recommendations.
+
+The client obtains an account/team-specific `draftSecurity` token using the
+saved ESPN login, connects to `wss://fantasydraft.espn.com/game-3/league-ID/JOIN`,
+and decodes the versioned binary INIT payload. Snake picks use `SELECT playerID`,
+queues preserve existing order with `DRAFT_LIST`, and explicit auction bids use
+`BID playerID amount`. Authentication tokens stay in memory and are omitted from
+logs and error messages. Opening a second connection for the same ESPN account
+may disconnect its existing browser draft room.
+
+Before a pick/bid, the server must confirm a live draft, the correct turn/player,
+a legal remaining roster and at least 25 seconds on the clock. A ping response
+barrier drains older events before validation. Auction bids additionally enforce
+the live price, model maximum, and roster-completion cash reserves. API queue
+execution and automatic watch currently support snake drafts; auction bidding
+is explicit. Auction nomination and queue editing are not implemented.
+
+Commands are journaled in `draft-write.json` before sending and sent **once**.
+Success requires the matching `SELECTED`, `DRAFT_LIST` or `BID` server event;
+winning an auction can also confirm the matching bid. A failed connection or
+missing receipt leaves a pending intent that blocks further writes:
+
+```sh
+python -m basketball draft reconcile
+# Only after personally checking ESPN and confirming it did not execute:
+python -m basketball draft resolve --not-executed
+```
+
+Reconciliation can recover a pick from a new INIT even when its original receipt
+was lost. Bid confirmations show that ESPN accepted a bid; another owner can
+outbid it immediately. Pending bids that were subsequently outbid may need owner
+resolution. Verified actions and explicit resolutions are retained in
+`draft-receipts.json`. Protocol changes, draft undo/reset and unknown schemas
+stop execution and require reconnecting. There is no automatic browser fallback.
+On completion, `draft watch` saves `draft-result.json` with the final server
+state and your roster's names/projections; custom mock leagues may disappear
+immediately afterward.
+
+For practice, use a separate configuration with the practice league ID and a
+separate `data_dir`. Never reuse the real league's draft journal for a mock.
+Sign in with that configuration, then run `draft status` before any write.
+
+The transport follows ESPN's own
+[basketball draft client (build 449ae61ae2f5-1.520)](https://cdn1.espn.net/kona/449ae61ae2f5-1.520/_next/f8bbd749-dc6b-4853-92a4-4ed40e7db182/page/basketball/draft.js),
+inspected October 16, 2026. This is an unofficial protocol that ESPN may change.
+
+### Optional browser fallback
+
+Pass `--transport browser` to `draft pick`, `queue`, `bid` or `watch` to explicitly
+use the earlier Playwright implementation. It still needs configuration below.
 
 **Rehearse and configure the actual draft-room controls first.** ESPN's room is
 not a stable public automation API. The implementation requires a unique exact
@@ -294,13 +351,14 @@ termination before removing that empty directory.
 
 ## Verification limits and tests
 
-League settings and the projection columns were verified in the signed-in ESPN
-website. No live roster transactions, bids, picks or trade offers were made while
-implementing this feature. ESPN's unofficial read/write and draft-room contracts
-can change. Transaction planning and offline command previews have focused local
-coverage; browser controls and live writes **have not been exercised end to end
-against this account**. A live draft rehearsal
-and a reviewed transaction preview are required before relying on unattended actions.
+League settings and projection columns were verified in the signed-in ESPN
+website. The direct draft API completed a 16-team practice draft: 11 picks were
+confirmed through the API and one was auto-picked by ESPN after a clock guard
+stopped a 30-second turn. The remaining rehearsal used the real league's 60-second
+timer. See [the rehearsal record](BASKETBALL_API_REHEARSAL.md) for the roster and
+exact scope. No real-league picks, roster transactions, bids or trade offers were
+submitted. Auction bids, season writes and browser controls have local coverage
+but remain unverified live on this account. ESPN's unofficial contracts can change.
 
 ESPN mappings/reference implementations:
 [espn-api basketball](https://github.com/cwendt94/espn-api/tree/master/espn_api/basketball),
@@ -309,9 +367,12 @@ ESPN mappings/reference implementations:
 
 ```sh
 python -m unittest discover -s tests -p test_basketball.py -v
+python -m unittest discover -s tests -p test_basketball_draft_api.py -v
 ```
 
 Tests are limited to the basketball backend and do not contact ESPN. They cover
 exact matching against an exhaustive oracle, lock handling, scoring/projection
 updates, category percentages/punts, caps, IR, acquisition constraints, draft/auction
-state, command previews, trade checks, and uncertain-write recovery.
+state, command previews, trade checks, and uncertain-write recovery. Draft API
+tests cover INIT decoding, authentication, command acknowledgements, turn/clock
+guards, queue preservation, immediate auction outbids and disconnect recovery.

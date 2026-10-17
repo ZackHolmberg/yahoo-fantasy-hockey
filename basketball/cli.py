@@ -86,10 +86,15 @@ def parser():
     best.add_argument("--slot", type=int)
     ds.add_parser("sync")
     ds.add_parser("reset")
+    ds.add_parser("status", help="Read live WebSocket draft state and pending command")
+    ds.add_parser("reconcile", help="Recover confirmation of an uncertain API draft command")
+    resolve_draft = ds.add_parser("resolve", help="After checking ESPN, attest the uncertain draft command did not execute")
+    resolve_draft.add_argument("--not-executed", action="store_true", required=True)
     watch = ds.add_parser("watch", help="Refresh ESPN picks and recommendations until interrupted")
-    watch.add_argument("--seconds", type=int, default=15)
+    watch.add_argument("--seconds", type=int, default=15, help="Browser polling interval; API mode listens continuously")
     watch.add_argument("--slot", type=int)
-    watch.add_argument("--execute", action="store_true", help="Pick on your turns using configured draft-room controls")
+    watch.add_argument("--execute", action="store_true", help="Pick on your turns using the live draft API")
+    watch.add_argument("--transport", choices=("api", "browser"), default="api")
     for action in ("mine", "taken", "undo", "paste"):
         s = ds.add_parser(action)
         s.add_argument("names", nargs="*")
@@ -103,6 +108,7 @@ def parser():
         s.add_argument("player")
         s.add_argument("--amount", type=int)
         s.add_argument("--execute", action="store_true")
+        s.add_argument("--transport", choices=("api", "browser"), default="api")
     return p
 
 
@@ -221,6 +227,12 @@ def run(args):
         return {k: v for k, v in cfg.items() if not k.startswith("_")}
     if args.command == "schedule":
         return schedule_file(cfg, args)
+    if args.command == "draft" and (args.action in {"status", "reconcile", "resolve"} or
+            getattr(args, "transport", None) == "api" and (args.action == "watch" or args.execute)):
+        if args.action == "watch" and args.seconds < 1:
+            raise ValueError("Draft watch interval must be at least 1 second")
+        from .draft_api import run as run_draft_api
+        return run_draft_api(cfg, args)
     if args.command == "import":
         raw = read_json(args.file)
         if int(raw["league"].get("id", 0)) != cfg["league_id"]:
@@ -365,6 +377,9 @@ def run(args):
                                        args.cost, args.action == "undo", args.action == "paste")
             if args.action == "auction":
                 return drafting.auction(model, args.player, args.current_bid)
+            if args.transport == "api":
+                from .draft_api import preview
+                return preview(model, args.action, args.player, args.amount)
             from .browser import draft_action
             return draft_action(model, args.action, args.player, args.execute, args.amount)
     raise ValueError("Unknown command")

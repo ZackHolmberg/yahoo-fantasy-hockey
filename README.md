@@ -12,10 +12,11 @@ python -m playwright install chromium
 python -m basketball login
 python -m basketball fetch
 python -m basketball draft best
+python -m basketball draft status
 python -m basketball report
 ```
 
-See [the basketball guide](docs/BASKETBALL.md) for all commands, browser export, draft-room configuration, and live-verification limits. Hockey commands and state remain independent.
+Live basketball drafting uses ESPN's WebSocket API: `draft pick PLAYER --execute`, `draft queue PLAYER --execute`, or `draft watch --execute`. See [the basketball guide](docs/BASKETBALL.md) for commands, authentication, practice setup, recovery and verification limits. Hockey commands and state remain independent.
 
 ## New machine setup (about 2 minutes)
 

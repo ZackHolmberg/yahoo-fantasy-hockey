@@ -6,6 +6,7 @@ https://github.com/cwendt94/espn-api/tree/master/espn_api/basketball .
 import json
 import urllib.error
 import urllib.request
+from urllib.parse import urlencode
 
 from .config import (SLOTS, STATS, credentials, identity, instant, now, path,
                      read_json, write_json)
@@ -17,7 +18,7 @@ class Client:
         self.base = f"https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/{cfg['season']}"
         self.league = f"{self.base}/segments/0/leagues/{cfg['league_id']}"
 
-    def request(self, url, body=None, filters=None):
+    def request(self, url, body=None, filters=None, text=False):
         auth = credentials(self.cfg)
         headers = {"User-Agent": "Mozilla/5.0", "Accept": "application/json",
                    "X-Fantasy-Source": "kona", "X-Fantasy-Platform": "espn-fantasy-web"}
@@ -31,7 +32,12 @@ class Client:
                                      data=json.dumps(body).encode() if body is not None else None)
         try:
             with urllib.request.urlopen(req, timeout=30) as response:
-                return json.load(response)
+                data = response.read().decode("utf-8")
+                if text:
+                    # ESPN's draftSecurity endpoint may return plain text or a
+                    # JSON string. Neither form is persisted or logged.
+                    return json.loads(data) if data.startswith('"') else data.strip()
+                return json.loads(data)
         except urllib.error.HTTPError as exc:
             if exc.code in (401, 403):
                 raise ValueError("ESPN authentication required. Run `python -m basketball login` or set ESPN_S2 and ESPN_SWID.") from exc
@@ -40,6 +46,12 @@ class Client:
 
     def settings(self):
         return self.request(self.league + "?view=mSettings&view=mStatus&view=mTeam&view=mDraftDetail")
+
+    def draft_init(self):
+        filters = {"players": {"filterStatsForContainerIds": {
+            "value": [f"00{self.cfg['season'] - 1}", f"10{self.cfg['season']}"]}}}
+        return self.request(self.league + "?" + urlencode({"view": ["draftInit", "mSettings"],
+                                                           "filter": json.dumps(filters)}, doseq=True))
 
     def fetch(self):
         league = self.request(self.league + "?view=mSettings&view=mStatus&view=mTeam&view=mRoster&view=mMatchup&view=mDraftDetail&view=mPendingTransactions")
@@ -99,7 +111,8 @@ def stats(record):
 def player(entry, owner=None, slot=None):
     pool = entry.get("playerPoolEntry", entry)
     p = pool.get("player", pool)
-    splits = [{"season": s["seasonId"], "source": s.get("statSourceId", 0),
+    # draftInit supplies a year in externalId; kona_player_info uses seasonId.
+    splits = [{"season": int(s.get("seasonId", s.get("externalId", 0))), "source": s.get("statSourceId", 0),
                "stats": stats(s.get("stats", {}))} for s in p.get("stats", [])
               if s.get("scoringPeriodId", 0) == 0 and s.get("statSplitTypeId", 0) == 0]
     eligible = [SLOTS[s] for s in p.get("eligibleSlots", []) if s in SLOTS]
@@ -182,7 +195,7 @@ def load_snapshot(cfg, filename=None, fresh=False):
     return snapshot
 
 
-def import_settings(cfg, raw):
+def import_settings(cfg, raw, persist=True):
     """Import authoritative rules without replacing local owner policy."""
     settings = raw["settings"]
     scoring = settings["scoringSettings"]
@@ -241,8 +254,9 @@ def import_settings(cfg, raw):
     cfg["verified_at"] = now(cfg).date().isoformat()
     # Keep the raw schema for audit. Games-cap schemas vary across formats;
     # explicit games_caps/games_used remain required rather than guessing.
-    write_json(path(cfg, "settings.json"), raw)
-    write_json(cfg["_path"], {k: v for k, v in cfg.items() if not k.startswith("_")})
+    if persist:
+        write_json(path(cfg, "settings.json"), raw)
+        write_json(cfg["_path"], {k: v for k, v in cfg.items() if not k.startswith("_")})
     return cfg
 
 
