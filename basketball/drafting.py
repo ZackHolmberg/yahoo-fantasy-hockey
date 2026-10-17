@@ -125,6 +125,8 @@ def board(model, count=20, current=None, slot=None):
         if missing > remaining - 1:
             continue
         rows.append({**row, "available_next_pick": survival(p.get("adp"), current, next_pick, cfg["draft"].get("adp_sigma", 12))})
+        if count > 0 and len(rows) >= count:
+            break
     filled = assign(mine, slots)
     missing = list(slots)
     for s in filled.values():
