@@ -18,6 +18,7 @@ from .drafting import auction, board
 from .espn import Client, import_settings, normalize
 from .manager import run_lock
 from .model import Model
+from . import availability
 
 
 # Versioned, big-endian Java storables in INIT. Optional objects begin with a
@@ -334,6 +335,13 @@ class Room:
         self.refresh()
         model = self.model()
         player = model.find(name)
+        evidence = availability.require(self.cfg, player)
+        # Public-source reads can consume clock time or overlap another pick.
+        self.refresh()
+        model = self.model()
+        player = model.find(name)
+        if "fantasy_state" in evidence and evidence["fantasy_state"] != {k: player.get(k) for k in ("status", "active", "team")}:
+            raise ValueError("Player status changed during availability verification; refresh before drafting")
         self.check(model, action, player, bid)
         if action == "queue" and player["id"] in self.queue:
             return {"verified": True, "action": action, "id": player["id"], "already_present": True, "transport": "api"}
@@ -344,6 +352,7 @@ class Room:
         intent = {**identity(self.cfg), "action": action, "player": player["id"], "bid": bid,
                   "pick": self.next_pick(),
                   "at": now(self.cfg).isoformat()}
+        intent["availability"] = evidence
         write_json(path(self.cfg, "draft-write.json"), intent)
         self.send(command)
         self.wait_for(lambda: confirmed(self, intent))
@@ -390,7 +399,8 @@ def preview(model, action, name, bid=None):
         if not isinstance(bid, int) or not 1 <= bid <= quote["maximum_bid"]:
             raise ValueError("Bid is missing or exceeds the model's maximum")
     return {"preview": True, "transport": "api", "action": action, "player": player["name"], "id": player["id"], "bid": bid,
-            "requirements": "Authenticated API INIT, live turn/bidding window, legal roster, >=25 seconds, server acknowledgement"}
+            "availability_checked": False,
+            "requirements": "Current availability verification, authenticated API INIT, live turn/bidding window, legal roster, >=25 seconds, server acknowledgement"}
 
 
 def run(cfg, args):
@@ -416,10 +426,9 @@ def run(cfg, args):
                 print(json.dumps({**room.status(), "recommendations": current}, ensure_ascii=False), flush=True)
                 last = len(room.picks)
             if args.execute and room.state == 1 and room.selecting == cfg["team_id"] and room.seconds_left() >= 25:
-                choices = board(room.model())["players"]
-                if not choices:
-                    raise ValueError("No legal player to draft")
-                print(json.dumps(room.execute("pick", choices[0]["id"]), ensure_ascii=False), flush=True)
+                candidate, checks = availability.verified_choice(room.model())
+                print(json.dumps({"availability_checks": checks}, ensure_ascii=False), flush=True)
+                print(json.dumps(room.execute("pick", candidate["id"]), ensure_ascii=False), flush=True)
             room.receive(1)
         model = room.model()
         result = room.status()

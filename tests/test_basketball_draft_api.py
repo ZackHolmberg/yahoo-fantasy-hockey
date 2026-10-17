@@ -80,6 +80,9 @@ class FakeSocket:
 
 class DraftApiTests(unittest.TestCase):
     def setUp(self):
+        availability_gate = patch("basketball.draft_api.availability.require", return_value={"allowed": True, "status": "clear", "fixture": True})
+        availability_gate.start()
+        self.addCleanup(availability_gate.stop)
         self.tmp = tempfile.TemporaryDirectory()
         self.addCleanup(self.tmp.cleanup)
         self.cfg = load()

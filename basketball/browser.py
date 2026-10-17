@@ -9,6 +9,7 @@ import time
 from .config import credentials
 from .drafting import auction, board, state
 from .espn import Client
+from . import availability
 
 
 def draft_action(model, action, name, execute=False, bid=None):
@@ -26,9 +27,11 @@ def draft_action(model, action, name, execute=False, bid=None):
         raise ValueError("This player cannot fit the remaining draft roster requirements")
     if not execute:
         return {"preview": True, "action": action, "player": p["name"], "id": p["id"], "bid": bid,
+                "availability_checked": False,
                 "url": url, "requirements": "Exact player row, your turn/nomination and at least 25 seconds on the clock"}
     if action != "queue" and not ui.get("clock_selector"):
         raise ValueError("Set draft_ui.clock_selector from the actual draft room before executing picks/bids")
+    availability.require(cfg, p)
     try:
         from playwright.sync_api import sync_playwright
     except ImportError as exc:
@@ -71,6 +74,13 @@ def draft_action(model, action, name, execute=False, bid=None):
             page.locator(ui["bid_input_selector"]).fill(str(bid))
         if button.count() != 1 or not button.is_enabled():
             raise ValueError("The verified player row has no unique enabled action button")
+        availability.require(cfg, p)
+        if action != "queue":
+            clock = page.locator(ui["clock_selector"]).inner_text().strip()
+            match = re.fullmatch(r"(?:(\d+):)?(\d{1,2})", clock)
+            seconds = int(match[1] or 0)*60 + int(match[2]) if match else 0
+            if seconds < 25 or not re.search(ui.get("turn_pattern", r"\byour turn\b"), marker.inner_text(), re.I):
+                raise ValueError("Draft turn/clock changed during availability verification")
         button.click()
         if action == "queue":
             if not ui.get("queue_selector") or not page.locator(ui["queue_selector"]).get_by_text(p["name"], exact=True).is_visible():

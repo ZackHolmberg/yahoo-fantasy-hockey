@@ -29,6 +29,49 @@ invalidate the lock. The experiment saves captures, complete league rosters,
 checksums and scored rows under ignored `basketball/data/strategy-lab/`. The
 production picker is not changed or automatically replaced by an experiment winner.
 
+## Current availability before draft writes
+
+Every API pick, queue addition and auction bid now requires fresh public ESPN
+profile, current-team roster and injury-report evidence. The browser fallback
+uses the same gate. The clock/turn are checked again after these reads and before
+submission. Evidence is included with the API intent journal and receipt.
+
+```sh
+python -m basketball draft availability "Russell Westbrook" --refresh
+python -m basketball draft availability 3468 --refresh
+python -m basketball draft review-risk "Player Name" --reason "Accept the documented short injury at this price" --hours 2
+```
+
+Names resolve against the fantasy snapshot; numeric ESPN IDs support a standalone
+public check without a private league read. Reports record sources, source times,
+retrieval/expiry times and the reason for their decision. Public reads send no
+ESPN account cookies. Ordinary checks cache source responses for at most 15
+minutes; actual draft writes force new reads. Stale/wrong-season/missing sources,
+ambiguous player identity or absent current roster membership never clear a player.
+
+Inactive players and structured out-for-season injury designations are blocked.
+Other injuries, suspensions and conflicting fantasy status require review and
+are skipped by automatic drafting. A deliberate `review-risk` accepts only the
+exact verified concern for up to 24 hours; a changed status, return date or report
+invalidates it. Blocked/unknown players cannot be overridden through this command.
+The automatic watcher checks candidates in order among its first 20 legal
+recommendations, skips those without clearance, and stops if none is verified.
+
+This checks current reported participation, not future injury proneness. A player
+cleared here can still be injured later; data can be wrong even when fresh.
+The public profile legitimately omits its optional injury field for healthy
+players, so roster injury coverage and the separate injury feed are mandatory.
+ESPN-controlled auto-picks after a disconnected/stopped client are outside this
+gate. Expert ranks and projections are not modified or discounted again.
+
+Live read-only validation on October 17, 2026: Russell Westbrook (3468) was
+blocked as inactive, Henri Veesaar (5105571) was blocked with an OFS designation,
+and Shai Gilgeous-Alexander (4278073) was clear on current sources. No live draft
+write was submitted. Twelve focused availability tests and the existing 23 draft
+protocol tests pass, including checks that failures send no command and clock
+expiry during verification prevents a pick. Historical backtest source files are
+unchanged; this current-data gate does not enter historical simulations.
+
 ## This league
 
 Settings were read from the signed-in ESPN league settings page on **October 16,

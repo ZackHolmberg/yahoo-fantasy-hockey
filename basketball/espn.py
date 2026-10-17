@@ -121,6 +121,7 @@ def player(entry, owner=None, slot=None):
             "primary": SLOTS.get(p.get("defaultPositionId", 0) - 1, "?"), "eligible": eligible,
             "owner": int(own or 0), "slot": SLOTS.get(entry.get("lineupSlotId"), slot),
             "status": p.get("injuryStatus", "ACTIVE"), "undroppable": p.get("isUndroppable", False),
+            "active": p.get("active"),
             "availability": pool.get("status", "ONTEAM" if own else "FREEAGENT"),
             "adp": (p.get("ownership") or {}).get("averageDraftPosition"),
             "auction_value": (p.get("ownership") or {}).get("auctionValueAverage"),

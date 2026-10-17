@@ -87,6 +87,13 @@ def parser():
     ds.add_parser("sync")
     ds.add_parser("reset")
     ds.add_parser("status", help="Read live WebSocket draft state and pending command")
+    available = ds.add_parser("availability", help="Verify current NBA profile, roster and injury sources")
+    available.add_argument("player")
+    available.add_argument("--refresh", action="store_true")
+    risk = ds.add_parser("review-risk", help="Explicitly accept a currently verified injury concern; never override blocked/unknown")
+    risk.add_argument("player")
+    risk.add_argument("--reason", required=True)
+    risk.add_argument("--hours", type=float, default=2)
     ds.add_parser("reconcile", help="Recover confirmation of an uncertain API draft command")
     resolve_draft = ds.add_parser("resolve", help="After checking ESPN, attest the uncertain draft command did not execute")
     resolve_draft.add_argument("--not-executed", action="store_true", required=True)
@@ -219,6 +226,10 @@ def standings(model):
 
 def run(args):
     cfg = load(args.config)
+    if args.command == "draft" and args.action in {"availability", "review-risk"}:
+        from . import availability
+        player = {"id": int(args.player), "name": args.player, "status": "ACTIVE"} if args.player.isdigit() else Model(cfg, load_snapshot(cfg, args.snapshot, fresh=args.fetch)).find(args.player)
+        return availability.check(cfg, player, args.refresh) if args.action == "availability" else availability.review_risk(cfg, player, args.reason, args.hours)
     if args.command == "login":
         return login(cfg)
     if args.command == "settings":
@@ -359,13 +370,15 @@ def run(args):
                             raise ValueError("Automatic watch needs a snake draft and a known slot; auction bids are explicit")
                         if current["pick"] in drafting.snake_picks(cfg["teams"], slot, sum(n for s, n in cfg["slots"].items() if s != "IR")):
                             from .browser import draft_action
-                            if not current["players"]:
-                                raise ValueError("No legal player to draft")
-                            print(json.dumps(draft_action(model, "pick", current["players"][0]["id"], execute=True)), flush=True)
+                            from .availability import verified_choice
+                            candidate, checks = verified_choice(model)
+                            print(json.dumps({"availability_checks": checks}), flush=True)
+                            print(json.dumps(draft_action(model, "pick", candidate["id"], execute=True)), flush=True)
                 time.sleep(args.seconds)
         with run_lock(cfg):
             if args.action == "best":
-                return drafting.board(model, args.limit, args.pick, args.slot)
+                return {**drafting.board(model, args.limit, args.pick, args.slot), "availability_checked": False,
+                        "availability_instruction": "Use draft availability PLAYER; every executed pick, queue or bid verifies current sources."}
             if args.action == "sync":
                 return drafting.sync(model)
             if args.action == "reset":
