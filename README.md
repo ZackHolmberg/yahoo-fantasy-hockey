@@ -2,6 +2,24 @@
 
 Draft prep and live draft co-pilot for Yahoo league 23491 (2026-27). The full context for Claude is in `CLAUDE.md`.
 
+## ESPN fantasy basketball
+
+The basketball assistant is configured for **league 2141453434, team 18, season 2027** using settings verified on ESPN on October 16, 2026. It supports points/category/roto analysis, draft tracking and ADP timing, auction budgets, daily/weekly lineups, streaming, IR, acquisitions/waivers, trade evaluation, and portable scheduled runs. Changes to ESPN require an explicit `--execute` flag.
+
+```sh
+python -m pip install -r requirements-basketball.txt
+python -m playwright install chromium
+python -m basketball login
+python -m basketball fetch
+python -m basketball draft best
+python -m basketball draft status
+python -m basketball report
+```
+
+Live basketball drafting uses ESPN's WebSocket API: `draft pick PLAYER --execute`, `draft queue PLAYER --execute`, or `draft watch --execute`. See [the basketball guide](docs/BASKETBALL.md) for commands, authentication, practice setup, recovery and verification limits. Hockey commands and state remain independent.
+
+An opt-in expert/market timing advisor is available with `python -m basketball --fetch draft hybrid --source rotowire --verify` at our turn. It compares two-pick combinations without moving far down the expert board. Across three retrospective seasons, timing added +0.27% over RotoWire alone and +0.47% over publisher consensus; it did not improve every year. This is read-only and does not change automatic drafting. See [the hybrid results and usage](docs/BASKETBALL_HYBRID_RESULTS.md).
+
 ## New machine setup (about 2 minutes)
 
 ```sh

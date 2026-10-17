@@ -1,0 +1,141 @@
+{
+  "inputs_sha256": "a4ce66fb3b1cf96ff35bb1631cd8d679fdf7acbcc0e750cee68174f2ff529558",
+  "source_sha256": {
+    "source_backtest.py": "4c46328dbdc47320f10d0bd4cd4ba1d39ac93a9fa499d2c6e732c2e8e0f32f32",
+    "ranking_library.py": "6a936a01c7f8115359831aa5c7d48238448c97a21fd384b283531d89ebdc81b1",
+    "strategy_lab.py": "384de8bd8794b4e546fb40a3361d0d8ab99e1fddcf090ee9b978cf4badfa4c36",
+    "backtest.py": "048224f9295a144cdbfc0ef9f449e03fde8d16562789c5eb28d2e8c2ee4302db",
+    "model.py": "f5d9261d710be638a2711e4c07ab85e1fada9c4989e642b4722be4a651fa9b5a",
+    "planner.py": "1233f761f61298b08c349a6804f5379e7c5a652800a167a107cf970d9311bafa",
+    "config.py": "b3cae2a7ef042ca069321ffa5fe1d7ac5b1bf25992797df62cf9aac323479161"
+  },
+  "config": {
+    "teams": 16,
+    "slots": {
+      "PG": 1,
+      "SG": 1,
+      "SF": 1,
+      "PF": 1,
+      "C": 1,
+      "G": 1,
+      "F": 1,
+      "UTIL": 2,
+      "BE": 3,
+      "IR": 2
+    },
+    "position_limits": {
+      "C": 4
+    },
+    "scoring": {
+      "FGM": 2,
+      "FGA": -1,
+      "FTM": 1,
+      "FTA": -1,
+      "3PM": 1,
+      "REB": 1,
+      "AST": 2,
+      "STL": 3,
+      "BLK": 3,
+      "TO": -2,
+      "PTS": 1
+    },
+    "format": "points"
+  },
+  "primary_sources": {
+    "2018": {
+      "ESPN": "espn-2018"
+    },
+    "2019": {
+      "ESPN": "espn-2019"
+    },
+    "2023": {
+      "ESPN": "espn-2023",
+      "RotoWire": "rotowire-2023"
+    },
+    "2024": {
+      "ESPN": "espn-2024"
+    },
+    "2025": {
+      "ESPN": "espn-2025",
+      "RotoWire": "rotowire-2025",
+      "Rotoworld": "rotoworld-2025"
+    },
+    "2026": {
+      "ESPN": "espn-2026",
+      "RotoWire": "rotowire-2026"
+    }
+  },
+  "policy_sources": {
+    "2018": {
+      "espn": [
+        "espn-2018"
+      ],
+      "prior_total": []
+    },
+    "2019": {
+      "espn": [
+        "espn-2019"
+      ],
+      "prior_total": []
+    },
+    "2023": {
+      "espn": [
+        "espn-2023"
+      ],
+      "prior_total": [],
+      "source:rotowire-2023": [
+        "rotowire-2023"
+      ],
+      "publisher_consensus": [
+        "espn-2023",
+        "rotowire-2023"
+      ]
+    },
+    "2024": {
+      "espn": [
+        "espn-2024"
+      ],
+      "prior_total": []
+    },
+    "2025": {
+      "espn": [
+        "espn-2025"
+      ],
+      "prior_total": [],
+      "source:rotowire-2025": [
+        "rotowire-2025"
+      ],
+      "source:rotoworld-2025": [
+        "rotoworld-2025"
+      ],
+      "publisher_consensus": [
+        "espn-2025",
+        "rotowire-2025",
+        "rotoworld-2025"
+      ]
+    },
+    "2026": {
+      "espn": [
+        "espn-2026"
+      ],
+      "prior_total": [],
+      "source:nba-rotowire-2026": [
+        "nba-rotowire-2026"
+      ],
+      "source:rotowire-2026-pergame": [
+        "rotowire-2026-pergame"
+      ],
+      "source:rotowire-2026": [
+        "rotowire-2026"
+      ],
+      "publisher_consensus": [
+        "espn-2026",
+        "rotowire-2026"
+      ]
+    }
+  },
+  "decision_sha256": "95f54d018cb71917c1675fb0dcfbedaf265959bd279affabe1baa0301a8ef5fe",
+  "drafts": 1728,
+  "target_picks": 20736,
+  "note": "Committed before scoring this retrospective experiment"
+}

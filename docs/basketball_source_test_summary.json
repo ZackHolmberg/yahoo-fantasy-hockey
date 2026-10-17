@@ -1,0 +1,983 @@
+{
+  "decision_sha256": "95f54d018cb71917c1675fb0dcfbedaf265959bd279affabe1baa0301a8ef5fe",
+  "inputs_sha256": "a4ce66fb3b1cf96ff35bb1631cd8d679fdf7acbcc0e750cee68174f2ff529558",
+  "source_sha256": {
+    "source_backtest.py": "4c46328dbdc47320f10d0bd4cd4ba1d39ac93a9fa499d2c6e732c2e8e0f32f32",
+    "ranking_library.py": "6a936a01c7f8115359831aa5c7d48238448c97a21fd384b283531d89ebdc81b1",
+    "strategy_lab.py": "384de8bd8794b4e546fb40a3361d0d8ab99e1fddcf090ee9b978cf4badfa4c36",
+    "backtest.py": "048224f9295a144cdbfc0ef9f449e03fde8d16562789c5eb28d2e8c2ee4302db",
+    "model.py": "f5d9261d710be638a2711e4c07ab85e1fada9c4989e642b4722be4a651fa9b5a",
+    "planner.py": "1233f761f61298b08c349a6804f5379e7c5a652800a167a107cf970d9311bafa",
+    "config.py": "b3cae2a7ef042ca069321ffa5fe1d7ac5b1bf25992797df62cf9aac323479161"
+  },
+  "config": {
+    "teams": 16,
+    "slots": {
+      "PG": 1,
+      "SG": 1,
+      "SF": 1,
+      "PF": 1,
+      "C": 1,
+      "G": 1,
+      "F": 1,
+      "UTIL": 2,
+      "BE": 3,
+      "IR": 2
+    },
+    "position_limits": {
+      "C": 4
+    },
+    "scoring": {
+      "FGM": 2,
+      "FGA": -1,
+      "FTM": 1,
+      "FTA": -1,
+      "3PM": 1,
+      "REB": 1,
+      "AST": 2,
+      "STL": 3,
+      "BLK": 3,
+      "TO": -2,
+      "PTS": 1
+    },
+    "format": "points"
+  },
+  "primary_sources": {
+    "2018": {
+      "ESPN": "espn-2018"
+    },
+    "2019": {
+      "ESPN": "espn-2019"
+    },
+    "2023": {
+      "ESPN": "espn-2023",
+      "RotoWire": "rotowire-2023"
+    },
+    "2024": {
+      "ESPN": "espn-2024"
+    },
+    "2025": {
+      "ESPN": "espn-2025",
+      "RotoWire": "rotowire-2025",
+      "Rotoworld": "rotoworld-2025"
+    },
+    "2026": {
+      "ESPN": "espn-2026",
+      "RotoWire": "rotowire-2026"
+    }
+  },
+  "policy_sources": {
+    "2018": {
+      "espn": [
+        "espn-2018"
+      ],
+      "prior_total": []
+    },
+    "2019": {
+      "espn": [
+        "espn-2019"
+      ],
+      "prior_total": []
+    },
+    "2023": {
+      "espn": [
+        "espn-2023"
+      ],
+      "prior_total": [],
+      "source:rotowire-2023": [
+        "rotowire-2023"
+      ],
+      "publisher_consensus": [
+        "espn-2023",
+        "rotowire-2023"
+      ]
+    },
+    "2024": {
+      "espn": [
+        "espn-2024"
+      ],
+      "prior_total": []
+    },
+    "2025": {
+      "espn": [
+        "espn-2025"
+      ],
+      "prior_total": [],
+      "source:rotowire-2025": [
+        "rotowire-2025"
+      ],
+      "source:rotoworld-2025": [
+        "rotoworld-2025"
+      ],
+      "publisher_consensus": [
+        "espn-2025",
+        "rotowire-2025",
+        "rotoworld-2025"
+      ]
+    },
+    "2026": {
+      "espn": [
+        "espn-2026"
+      ],
+      "prior_total": [],
+      "source:nba-rotowire-2026": [
+        "nba-rotowire-2026"
+      ],
+      "source:rotowire-2026-pergame": [
+        "rotowire-2026-pergame"
+      ],
+      "source:rotowire-2026": [
+        "rotowire-2026"
+      ],
+      "publisher_consensus": [
+        "espn-2026",
+        "rotowire-2026"
+      ]
+    }
+  },
+  "summary": [
+    {
+      "season": 2018,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 18897.16667,
+      "starting_nine": 17493.66667,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.5625,
+      "low_games": 1.70833,
+      "covered_pick_share": 0.80903,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2018,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 20314.41667,
+      "starting_nine": 17455.85417,
+      "gain_pct": 0.39868,
+      "roster_gain_pct": 8.36051,
+      "win": 0.5625,
+      "zero_games": 0.33333,
+      "low_games": 0.45833,
+      "covered_pick_share": 0.0,
+      "gain_p10": -12.86152,
+      "gain_p90": 11.68482
+    },
+    {
+      "season": 2019,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 21942.66667,
+      "starting_nine": 19408.9375,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.14583,
+      "low_games": 0.29167,
+      "covered_pick_share": 0.80035,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2019,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 25325.33333,
+      "starting_nine": 21866.41667,
+      "gain_pct": 13.39162,
+      "roster_gain_pct": 16.38486,
+      "win": 0.97917,
+      "zero_games": 0.02083,
+      "low_games": 0.04167,
+      "covered_pick_share": 0.0,
+      "gain_p10": 3.32126,
+      "gain_p90": 21.70672
+    },
+    {
+      "season": 2023,
+      "field": "consensus",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 21968.125,
+      "starting_nine": 19136.72917,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.02083,
+      "low_games": 0.35417,
+      "covered_pick_share": 1.0,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2023,
+      "field": "consensus",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 22642.54167,
+      "starting_nine": 20383.70833,
+      "gain_pct": 6.96165,
+      "roster_gain_pct": 3.60706,
+      "win": 0.83333,
+      "zero_games": 1,
+      "low_games": 1,
+      "covered_pick_share": 0.0,
+      "gain_p10": -2.55437,
+      "gain_p90": 17.44811
+    },
+    {
+      "season": 2023,
+      "field": "consensus",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 22687.33333,
+      "starting_nine": 19636.1875,
+      "gain_pct": 2.71203,
+      "roster_gain_pct": 3.36952,
+      "win": 0.66667,
+      "zero_games": 0.02083,
+      "low_games": 0.14583,
+      "covered_pick_share": 0.27951,
+      "gain_p10": -5.70618,
+      "gain_p90": 11.02515
+    },
+    {
+      "season": 2023,
+      "field": "consensus",
+      "policy": "source:rotowire-2023",
+      "drafts": 48,
+      "total": 22894.85417,
+      "starting_nine": 19990.58333,
+      "gain_pct": 4.76112,
+      "roster_gain_pct": 4.51574,
+      "win": 0.77083,
+      "zero_games": 0.02083,
+      "low_games": 0.125,
+      "covered_pick_share": 0.39583,
+      "gain_p10": -2.07947,
+      "gain_p90": 13.3443
+    },
+    {
+      "season": 2023,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 22805.35417,
+      "starting_nine": 19839.27083,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.08333,
+      "low_games": 0.1875,
+      "covered_pick_share": 0.99653,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2023,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 22200.16667,
+      "starting_nine": 20016.14583,
+      "gain_pct": 1.56779,
+      "roster_gain_pct": -1.97977,
+      "win": 0.58333,
+      "zero_games": 1,
+      "low_games": 1,
+      "covered_pick_share": 0.0,
+      "gain_p10": -10.21484,
+      "gain_p90": 14.68943
+    },
+    {
+      "season": 2023,
+      "field": "espn",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 22865.58333,
+      "starting_nine": 19824.25,
+      "gain_pct": 0.21288,
+      "roster_gain_pct": 0.56811,
+      "win": 0.52083,
+      "zero_games": 0.08333,
+      "low_games": 0.125,
+      "covered_pick_share": 0.49306,
+      "gain_p10": -9.72906,
+      "gain_p90": 12.09775
+    },
+    {
+      "season": 2023,
+      "field": "espn",
+      "policy": "source:rotowire-2023",
+      "drafts": 48,
+      "total": 22624.47917,
+      "starting_nine": 19563.22917,
+      "gain_pct": -0.87814,
+      "roster_gain_pct": -0.31264,
+      "win": 0.45833,
+      "zero_games": 0.08333,
+      "low_games": 0.125,
+      "covered_pick_share": 0.49826,
+      "gain_p10": -12.42007,
+      "gain_p90": 8.22228
+    },
+    {
+      "season": 2024,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 23941.08333,
+      "starting_nine": 20962.58333,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.10417,
+      "low_games": 0.72917,
+      "covered_pick_share": 1.0,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2024,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 21102.72917,
+      "starting_nine": 20130.0625,
+      "gain_pct": -3.59369,
+      "roster_gain_pct": -11.36807,
+      "win": 0.27083,
+      "zero_games": 1,
+      "low_games": 2,
+      "covered_pick_share": 0.0,
+      "gain_p10": -13.69763,
+      "gain_p90": 6.33758
+    },
+    {
+      "season": 2025,
+      "field": "consensus",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 23449.25,
+      "starting_nine": 20617.25,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.0625,
+      "low_games": 0.20833,
+      "covered_pick_share": 0.83507,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2025,
+      "field": "consensus",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 23401.58333,
+      "starting_nine": 20489.375,
+      "gain_pct": -0.30631,
+      "roster_gain_pct": 0.26808,
+      "win": 0.47917,
+      "zero_games": 0.08333,
+      "low_games": 0.39583,
+      "covered_pick_share": 0.0,
+      "gain_p10": -10.9128,
+      "gain_p90": 9.93346
+    },
+    {
+      "season": 2025,
+      "field": "consensus",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 22688.70833,
+      "starting_nine": 19674.29167,
+      "gain_pct": -4.20028,
+      "roster_gain_pct": -2.65768,
+      "win": 0.375,
+      "zero_games": 0.04167,
+      "low_games": 0.39583,
+      "covered_pick_share": 0.28125,
+      "gain_p10": -16.9633,
+      "gain_p90": 7.10662
+    },
+    {
+      "season": 2025,
+      "field": "consensus",
+      "policy": "source:rotowire-2025",
+      "drafts": 48,
+      "total": 22336.1875,
+      "starting_nine": 19591.83333,
+      "gain_pct": -4.72349,
+      "roster_gain_pct": -4.61748,
+      "win": 0.35417,
+      "zero_games": 0.04167,
+      "low_games": 0.1875,
+      "covered_pick_share": 0.33507,
+      "gain_p10": -13.68576,
+      "gain_p90": 4.58106
+    },
+    {
+      "season": 2025,
+      "field": "consensus",
+      "policy": "source:rotoworld-2025",
+      "drafts": 48,
+      "total": 20860.14583,
+      "starting_nine": 18407.58333,
+      "gain_pct": -10.28779,
+      "roster_gain_pct": -10.42457,
+      "win": 0.16667,
+      "zero_games": 0,
+      "low_games": 1.25,
+      "covered_pick_share": 1.0,
+      "gain_p10": -21.41569,
+      "gain_p90": 2.62477
+    },
+    {
+      "season": 2025,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 22730.9375,
+      "starting_nine": 19652.77083,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.0625,
+      "low_games": 0.35417,
+      "covered_pick_share": 0.80903,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2025,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 21631.95833,
+      "starting_nine": 18689.77083,
+      "gain_pct": -4.57181,
+      "roster_gain_pct": -4.40676,
+      "win": 0.20833,
+      "zero_games": 0.10417,
+      "low_games": 0.1875,
+      "covered_pick_share": 0.0,
+      "gain_p10": -12.44954,
+      "gain_p90": 2.49389
+    },
+    {
+      "season": 2025,
+      "field": "espn",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 23920.97917,
+      "starting_nine": 20740.33333,
+      "gain_pct": 6.01015,
+      "roster_gain_pct": 5.7784,
+      "win": 0.77083,
+      "zero_games": 0,
+      "low_games": 0.35417,
+      "covered_pick_share": 0.44792,
+      "gain_p10": -5.61624,
+      "gain_p90": 16.78048
+    },
+    {
+      "season": 2025,
+      "field": "espn",
+      "policy": "source:rotowire-2025",
+      "drafts": 48,
+      "total": 22476.375,
+      "starting_nine": 19420.39583,
+      "gain_pct": -0.78452,
+      "roster_gain_pct": -0.76235,
+      "win": 0.4375,
+      "zero_games": 0.04167,
+      "low_games": 0.25,
+      "covered_pick_share": 0.47049,
+      "gain_p10": -12.99731,
+      "gain_p90": 11.57061
+    },
+    {
+      "season": 2025,
+      "field": "espn",
+      "policy": "source:rotoworld-2025",
+      "drafts": 48,
+      "total": 22433.97917,
+      "starting_nine": 19658.02083,
+      "gain_pct": 0.54367,
+      "roster_gain_pct": -0.75706,
+      "win": 0.47917,
+      "zero_games": 0,
+      "low_games": 0.97917,
+      "covered_pick_share": 1.0,
+      "gain_p10": -9.82415,
+      "gain_p90": 16.40602
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 20901.0,
+      "starting_nine": 18758.875,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.3125,
+      "low_games": 1.33333,
+      "covered_pick_share": 0.82639,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 11277.5,
+      "starting_nine": 11277.5,
+      "gain_pct": -39.47572,
+      "roster_gain_pct": -45.55635,
+      "win": 0,
+      "zero_games": 3.91667,
+      "low_games": 6.10417,
+      "covered_pick_share": 0.0,
+      "gain_p10": -48.59771,
+      "gain_p90": -29.28033
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 21183.66667,
+      "starting_nine": 19096.64583,
+      "gain_pct": 2.13451,
+      "roster_gain_pct": 1.81685,
+      "win": 0.60417,
+      "zero_games": 0.3125,
+      "low_games": 1.39583,
+      "covered_pick_share": 0.51042,
+      "gain_p10": -6.85015,
+      "gain_p90": 13.61622
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "source:nba-rotowire-2026",
+      "drafts": 48,
+      "total": 19903.54167,
+      "starting_nine": 18316.16667,
+      "gain_pct": -1.85995,
+      "roster_gain_pct": -3.92687,
+      "win": 0.4375,
+      "zero_games": 1.16667,
+      "low_games": 1.35417,
+      "covered_pick_share": 0.82986,
+      "gain_p10": -15.9129,
+      "gain_p90": 12.38961
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "source:rotowire-2026",
+      "drafts": 48,
+      "total": 21332.60417,
+      "starting_nine": 19654.39583,
+      "gain_pct": 5.18733,
+      "roster_gain_pct": 2.68558,
+      "win": 0.75,
+      "zero_games": 0.25,
+      "low_games": 2.5,
+      "covered_pick_share": 0.71354,
+      "gain_p10": -8.32828,
+      "gain_p90": 17.22719
+    },
+    {
+      "season": 2026,
+      "field": "consensus",
+      "policy": "source:rotowire-2026-pergame",
+      "drafts": 48,
+      "total": 17356.79167,
+      "starting_nine": 16353.41667,
+      "gain_pct": -12.35627,
+      "roster_gain_pct": -16.30388,
+      "win": 0.1875,
+      "zero_games": 0.16667,
+      "low_games": 2.125,
+      "covered_pick_share": 0.84201,
+      "gain_p10": -24.55155,
+      "gain_p90": 2.13591
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "espn",
+      "drafts": 48,
+      "total": 20870.79167,
+      "starting_nine": 18669.79167,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.4375,
+      "low_games": 1.375,
+      "covered_pick_share": 0.79688,
+      "gain_p10": 0.0,
+      "gain_p90": 0.0
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "prior_total",
+      "drafts": 48,
+      "total": 10278.25,
+      "starting_nine": 10278.25,
+      "gain_pct": -44.34828,
+      "roster_gain_pct": -50.06224,
+      "win": 0,
+      "zero_games": 3.89583,
+      "low_games": 6.39583,
+      "covered_pick_share": 0.0,
+      "gain_p10": -58.17276,
+      "gain_p90": -26.68785
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "publisher_consensus",
+      "drafts": 48,
+      "total": 22488.04167,
+      "starting_nine": 20328.14583,
+      "gain_pct": 9.39036,
+      "roster_gain_pct": 8.55663,
+      "win": 0.79167,
+      "zero_games": 0.02083,
+      "low_games": 2.0625,
+      "covered_pick_share": 0.68403,
+      "gain_p10": -4.52072,
+      "gain_p90": 23.97739
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "source:nba-rotowire-2026",
+      "drafts": 48,
+      "total": 19751.20833,
+      "starting_nine": 18484.35417,
+      "gain_pct": -0.46902,
+      "roster_gain_pct": -4.57103,
+      "win": 0.4375,
+      "zero_games": 1.3125,
+      "low_games": 1.4375,
+      "covered_pick_share": 0.82118,
+      "gain_p10": -13.45227,
+      "gain_p90": 13.47128
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "source:rotowire-2026",
+      "drafts": 48,
+      "total": 23294.625,
+      "starting_nine": 21449.125,
+      "gain_pct": 15.65751,
+      "roster_gain_pct": 12.72064,
+      "win": 0.97917,
+      "zero_games": 0.02083,
+      "low_games": 2.1875,
+      "covered_pick_share": 0.90799,
+      "gain_p10": 2.59777,
+      "gain_p90": 28.96544
+    },
+    {
+      "season": 2026,
+      "field": "espn",
+      "policy": "source:rotowire-2026-pergame",
+      "drafts": 48,
+      "total": 19578.14583,
+      "starting_nine": 18218.60417,
+      "gain_pct": -1.95781,
+      "roster_gain_pct": -5.62086,
+      "win": 0.45833,
+      "zero_games": 0.22917,
+      "low_games": 1.6875,
+      "covered_pick_share": 0.88194,
+      "gain_p10": -17.05657,
+      "gain_p90": 14.5081
+    }
+  ],
+  "aggregate": [
+    {
+      "policy": "espn",
+      "seasons": [
+        2018,
+        2019,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "drafts": 432,
+      "gain_pct": 0.0,
+      "roster_gain_pct": 0.0,
+      "win": 0,
+      "zero_games": 0.21701,
+      "low_games": 0.77257,
+      "covered_pick_share": 0.87355
+    },
+    {
+      "policy": "prior_total",
+      "seasons": [
+        2018,
+        2019,
+        2023,
+        2024,
+        2025,
+        2026
+      ],
+      "drafts": 432,
+      "gain_pct": -4.98162,
+      "roster_gain_pct": -5.94795,
+      "win": 0.47743,
+      "zero_games": 1.05903,
+      "low_games": 1.67361,
+      "covered_pick_share": 0.0
+    },
+    {
+      "policy": "publisher_consensus",
+      "seasons": [
+        2023,
+        2025,
+        2026
+      ],
+      "drafts": 288,
+      "gain_pct": 2.70994,
+      "roster_gain_pct": 2.9053,
+      "win": 0.62153,
+      "zero_games": 0.07986,
+      "low_games": 0.74653,
+      "covered_pick_share": 0.44936
+    },
+    {
+      "policy": "rotowire_primary",
+      "seasons": [
+        2023,
+        2025,
+        2026
+      ],
+      "drafts": 288,
+      "gain_pct": 3.2033,
+      "roster_gain_pct": 2.37158,
+      "win": 0.625,
+      "zero_games": 0.07639,
+      "low_games": 0.89583,
+      "covered_pick_share": 0.55353
+    }
+  ],
+  "independent_verification": {
+    "target_records": 1728,
+    "unique_scored_rosters": 1581,
+    "complete_leagues": 1728,
+    "full_roster_records": 27648,
+    "unique_full_rosters": 16445,
+    "method": "Raw display totals, separate slot-bitmask optimizer, independent augmenting-path starter coverage, full-league uniqueness/caps, native rank/coverage traces and paired arithmetic"
+  },
+  "repeat_verification": {
+    "matches_locked_case": true,
+    "season": 2025,
+    "field": "espn",
+    "seed": -1,
+    "slot": 8,
+    "policy": "publisher_consensus",
+    "sha256": "28f960b7e3a89f870ce301a30f268adcd4bfe830ba9a4dc2cb4c0f34510144c5"
+  },
+  "source_coverage": {
+    "2018": [
+      {
+        "id": "espn-2018",
+        "family": "ESPN",
+        "url": "https://www.espn.com/graphics/2016/1014/top150points1012.pdf",
+        "sha256": "f5cd3258b9aec7d413250867dd9ad18eba115e2258a2487c345a0722272b9aa3",
+        "date_evidence": {
+          "CreationDate": "2017-10-12T16:55:28-0400",
+          "ModDate": "2017-10-12T16:55:28-0400"
+        },
+        "basis": "published expert order",
+        "published_rows": 150,
+        "matched_rows": 150,
+        "usable_rows": 150
+      }
+    ],
+    "2019": [
+      {
+        "id": "espn-2019",
+        "family": "ESPN",
+        "url": "https://www.espn.com/graphics/2016/1014/2018fantasyhoopscheatsheetsptsrk.pdf",
+        "sha256": "1d8dcb5fca7b9604efc9822b5bee51c46a283de7181c39bff256223c0a3231cb",
+        "date_evidence": {
+          "CreationDate": "2018-10-04T10:18:07-0400",
+          "ModDate": "2018-10-04T10:18:07-0400"
+        },
+        "basis": "published expert order",
+        "published_rows": 150,
+        "matched_rows": 150,
+        "usable_rows": 150
+      }
+    ],
+    "2023": [
+      {
+        "id": "espn-2023",
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2022-2023/FBA2022CSpts.pdf",
+        "sha256": "35241275d1b731718d3936cd2c6c54222ad44d6cdb2e9a8f85c58788b8315e2a",
+        "date_evidence": {
+          "CreationDate": "2022-10-12T17:44:59-0400",
+          "ModDate": "2022-10-12T17:44:59-0400"
+        },
+        "basis": "published expert order",
+        "published_rows": 200,
+        "matched_rows": 200,
+        "usable_rows": 200
+      },
+      {
+        "id": "rotowire-2023",
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-cheat-sheet-2022-23-top-players-sleepers-busts-66579",
+        "sha256": "a46a1a8323d05739404624838412d565364d882b21e2c5d81ef5257acf3f843e",
+        "date_evidence": {
+          "datePublished": "2022-10-12T14:10:00-07:00",
+          "dateModified": "2022-10-12T14:23:00-07:00"
+        },
+        "basis": "published expert order",
+        "published_rows": 50,
+        "matched_rows": 50,
+        "usable_rows": 50
+      }
+    ],
+    "2024": [
+      {
+        "id": "espn-2024",
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2023-2024/FBA2024top200PTS.pdf",
+        "sha256": "cc3a83b3ec9f1c5fef165c922b3d38ddfb045cc034f5a3bd31cd177e4c0161fe",
+        "date_evidence": {
+          "CreationDate": "2023-10-20T12:41:10-0700",
+          "ModDate": "2023-10-20T12:41:10-0700"
+        },
+        "basis": "published expert order",
+        "published_rows": 200,
+        "matched_rows": 200,
+        "usable_rows": 200
+      }
+    ],
+    "2025": [
+      {
+        "id": "espn-2025",
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2024-25/FBA24ptsCS.pdf",
+        "sha256": "9b1a0a0d6f0af929c71cb6e291f804285c51c8e3d1b95344f07c2d2a4e136cad",
+        "date_evidence": {
+          "CreationDate": "2024-10-18T15:09:39-0400",
+          "ModDate": "2024-10-18T15:09:39-0400"
+        },
+        "basis": "published expert order",
+        "published_rows": 150,
+        "matched_rows": 150,
+        "usable_rows": 150
+      },
+      {
+        "id": "rotowire-2025",
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2024-projections-85939",
+        "sha256": "2fd4ccdd4bdc919c3c02c65c2fb009b27f9bce84152365972751335a9d8d5d84",
+        "date_evidence": {
+          "datePublished": "2024-10-11T14:34:00-07:00",
+          "dateModified": "2024-10-11T14:34:00-07:00"
+        },
+        "basis": "published expert order",
+        "published_rows": 50,
+        "matched_rows": 50,
+        "usable_rows": 50
+      },
+      {
+        "id": "rotoworld-2025",
+        "family": "Rotoworld",
+        "url": "https://nbcsports.brightspotcdn.com/03/10/b09f526442aab7ad4db7ba3584ed/rotoworld-2024-25-fantasy-basketball-kit.pdf",
+        "sha256": "65802c4ee339d82a38e956bc4e56c6be724711122622e93725143b3e08c729ec",
+        "date_evidence": {
+          "CreationDate": "2024-10-01T13:11:28-0500",
+          "ModDate": "2024-10-01T15:30:09-0500"
+        },
+        "basis": "published expert order",
+        "published_rows": 200,
+        "matched_rows": 200,
+        "usable_rows": 200
+      }
+    ],
+    "2026": [
+      {
+        "id": "espn-2026",
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2025-26/fbacheatsheetPts.pdf",
+        "sha256": "d7f01cb8dac4d4378c7e502e6d5efec3c2d5d5e0cb0b52d8f9bad39ec93dcee7",
+        "date_evidence": {
+          "CreationDate": "2025-10-20T17:10:30-0400",
+          "ModDate": "2025-10-20T17:10:30-0400"
+        },
+        "basis": "published expert order",
+        "published_rows": 150,
+        "matched_rows": 149,
+        "usable_rows": 149
+      },
+      {
+        "id": "nba-rotowire-2026",
+        "family": "RotoWire",
+        "url": "https://www.nba.com/news/nba-fantasy-early-top-100-fantasy-rankings-for-2025-26-points-leagues",
+        "sha256": "36afde19f790ff3a34159b6553cfcceccfa3260fe79b8f448936c2c8102a9c2b",
+        "date_evidence": {
+          "datePublished": "2025-07-11T13:00:05Z",
+          "dateModified": "2025-07-16T03:32:14Z"
+        },
+        "basis": "published expert order",
+        "published_rows": 100,
+        "matched_rows": 100,
+        "usable_rows": 100
+      },
+      {
+        "id": "rotowire-2026-pergame",
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+        "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+        "date_evidence": {
+          "datePublished": "2025-09-03T14:29:00-07:00",
+          "dateModified": "2025-09-03T14:29:00-07:00"
+        },
+        "basis": "projected points per game",
+        "published_rows": 100,
+        "matched_rows": 100,
+        "usable_rows": 100
+      },
+      {
+        "id": "rotowire-2026",
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+        "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+        "date_evidence": {
+          "datePublished": "2025-09-03T14:29:00-07:00",
+          "dateModified": "2025-09-03T14:29:00-07:00"
+        },
+        "basis": "projected total points",
+        "published_rows": 100,
+        "matched_rows": 100,
+        "usable_rows": 100
+      }
+    ]
+  }
+}

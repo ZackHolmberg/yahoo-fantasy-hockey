@@ -1,0 +1,801 @@
+{
+  "collected_on": "2026-10-17",
+  "counts": {
+    "category_only": 1,
+    "diagnostic": 1,
+    "preseason": 12,
+    "prospective": 3
+  },
+  "catalog": [
+    {
+      "source": {
+        "id": "espn-2018",
+        "season": 2018,
+        "family": "ESPN",
+        "url": "https://www.espn.com/graphics/2016/1014/top150points1012.pdf",
+        "parser": "espn_pdf",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2018.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:06.532050+00:00",
+      "sha256": "f5cd3258b9aec7d413250867dd9ad18eba115e2258a2487c345a0722272b9aa3",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2017-10-12T16:55:28-0400",
+        "ModDate": "2017-10-12T16:55:28-0400"
+      },
+      "full_league_projection": false,
+      "board_sha256": "0c0c1bd10a36dff00f8af2f716f0be7ecb653175a1e91e4d079e7b9009a75e8a",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "espn-2019",
+        "season": 2019,
+        "family": "ESPN",
+        "url": "https://www.espn.com/graphics/2016/1014/2018fantasyhoopscheatsheetsptsrk.pdf",
+        "parser": "espn_pdf",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2019.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:07.044656+00:00",
+      "sha256": "1d8dcb5fca7b9604efc9822b5bee51c46a283de7181c39bff256223c0a3231cb",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2018-10-04T10:18:07-0400",
+        "ModDate": "2018-10-04T10:18:07-0400"
+      },
+      "full_league_projection": false,
+      "board_sha256": "168515e1a9051f2880f84abb0d35640086b11526444703414dbf3b64b51b946d",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "espn-2023",
+        "season": 2023,
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2022-2023/FBA2022CSpts.pdf",
+        "parser": "espn_pdf",
+        "count": 200,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2023.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:07.310494+00:00",
+      "sha256": "35241275d1b731718d3936cd2c6c54222ad44d6cdb2e9a8f85c58788b8315e2a",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2022-10-12T17:44:59-0400",
+        "ModDate": "2022-10-12T17:44:59-0400"
+      },
+      "full_league_projection": false,
+      "board_sha256": "3c42cd392cf5712a8281d2eff1fd245fcdf973fd51742c08c6e89b344f2c70d3",
+      "rows": 200
+    },
+    {
+      "source": {
+        "id": "espn-2025",
+        "season": 2025,
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2024-25/FBA24ptsCS.pdf",
+        "parser": "espn_pdf",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2025.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:07.676124+00:00",
+      "sha256": "9b1a0a0d6f0af929c71cb6e291f804285c51c8e3d1b95344f07c2d2a4e136cad",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2024-10-18T15:09:39-0400",
+        "ModDate": "2024-10-18T15:09:39-0400"
+      },
+      "full_league_projection": false,
+      "board_sha256": "d8514602c5b3772a9b84b1dec307355d3707f878a940842baeef0df60538cc27",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "espn-2024",
+        "season": 2024,
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2023-2024/FBA2024top200PTS.pdf",
+        "parser": "espn_pdf",
+        "count": 200,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2024.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:07.886712+00:00",
+      "sha256": "cc3a83b3ec9f1c5fef165c922b3d38ddfb045cc034f5a3bd31cd177e4c0161fe",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2023-10-20T12:41:10-0700",
+        "ModDate": "2023-10-20T12:41:10-0700"
+      },
+      "full_league_projection": false,
+      "board_sha256": "9925ec08cadba09c17d1893e392c1ecee5b2f9744b260dc38350f450ae143019",
+      "rows": 200
+    },
+    {
+      "source": {
+        "id": "espn-2026",
+        "season": 2026,
+        "family": "ESPN",
+        "url": "https://g.espncdn.com/s/fbadraftkit/2025-26/fbacheatsheetPts.pdf",
+        "parser": "espn_pdf",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "cache_from": "basketball/data/strategy-lab/raw/espn-2026.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:08.220005+00:00",
+      "sha256": "d7f01cb8dac4d4378c7e502e6d5efec3c2d5d5e0cb0b52d8f9bad39ec93dcee7",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2025-10-20T17:10:30-0400",
+        "ModDate": "2025-10-20T17:10:30-0400"
+      },
+      "full_league_projection": false,
+      "board_sha256": "41260381c856c95010b3b8ea0a83dc86257e07ced065cc9dbd42cbeb9a3de84e",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "rotoworld-2025",
+        "season": 2025,
+        "family": "Rotoworld",
+        "url": "https://nbcsports.brightspotcdn.com/03/10/b09f526442aab7ad4db7ba3584ed/rotoworld-2024-25-fantasy-basketball-kit.pdf",
+        "parser": "nbc_pdf",
+        "count": 200,
+        "format": "points",
+        "basis": "published expert order",
+        "pages": [
+          72,
+          73
+        ],
+        "cache_from": "basketball/data/strategy-lab/raw/rotoworld-2025.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:08.435816+00:00",
+      "sha256": "65802c4ee339d82a38e956bc4e56c6be724711122622e93725143b3e08c729ec",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "CreationDate": "2024-10-01T13:11:28-0500",
+        "ModDate": "2024-10-01T15:30:09-0500"
+      },
+      "full_league_projection": false,
+      "board_sha256": "fc66da38ef32ad8c2fbaab999c76993070b52f5a9905a1c4b7d3683c17d79341",
+      "rows": 200
+    },
+    {
+      "source": {
+        "id": "rotoworld-2027",
+        "season": 2027,
+        "family": "Rotoworld",
+        "url": "https://nbcsports.brightspotcdn.com/27/f4/76d4f84f47558c1d78522de7270e/rotoworld-2026-27-fantasy-basketball-kit-v2.pdf",
+        "parser": "nbc_pdf",
+        "count": 200,
+        "format": "points",
+        "basis": "published expert order",
+        "pages": [
+          44,
+          45
+        ],
+        "cache_from": "basketball/data/strategy-lab/raw/rotoworld-2027.pdf"
+      },
+      "retrieved_at": "2026-10-17T06:26:08.954515+00:00",
+      "sha256": "0ccd00861c46e45113e52acbfbdd682a40aebd0c8880eda7b480a0cd8bd7bc10",
+      "status": "prospective",
+      "note": "Captured before this league's draft; no season outcomes exist yet",
+      "date_evidence": {
+        "CreationDate": "2026-09-25T13:14:35-0500",
+        "ModDate": "2026-10-05T16:07:22-0500"
+      },
+      "full_league_projection": false,
+      "board_sha256": "4c2ca54c63be869e8caee93f65fb5a56e447c3590d1ebf7940e7868823c6cc5d",
+      "rows": 200
+    },
+    {
+      "source": {
+        "id": "rotowire-2023",
+        "season": 2023,
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-cheat-sheet-2022-23-top-players-sleepers-busts-66579",
+        "parser": "ordered",
+        "count": 50,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "Cheat Sheet 2022-23",
+        "name_split": "(?!)",
+        "trailing_team_position": true,
+        "coverage_note": "Public top 50 points list; full customized list requires subscription",
+        "name_aliases": {
+          "G. Antetokounmpo": "Giannis Antetokounmpo",
+          "S. Gilgeous-Alexander": "Shai Gilgeous-Alexander",
+          "A. Seng\u00fcn": "Alperen Sengun"
+        }
+      },
+      "retrieved_at": "2026-10-17T06:26:09.521537+00:00",
+      "sha256": "a46a1a8323d05739404624838412d565364d882b21e2c5d81ef5257acf3f843e",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "datePublished": "2022-10-12T14:10:00-07:00",
+        "dateModified": "2022-10-12T14:23:00-07:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "59af9ea70d84366d5e6c6ddbd2974f72a12d9a0e15011ce8ab04d42b510e20d1",
+      "rows": 50
+    },
+    {
+      "source": {
+        "id": "rotowire-2025",
+        "season": 2025,
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2024-projections-85939",
+        "parser": "table",
+        "count": 50,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "Points League Rankings.*2024",
+        "headers": [
+          "Rank",
+          "Name",
+          "Team",
+          "Pos",
+          "FPTS",
+          "G",
+          "MIN",
+          "PTS",
+          "REB",
+          "AST",
+          "STL",
+          "BLK",
+          "TO"
+        ],
+        "rank_column": "Rank",
+        "name_columns": [
+          "Name"
+        ],
+        "forecast_columns": [
+          "FPTS",
+          "G",
+          "MIN",
+          "PTS",
+          "REB",
+          "AST",
+          "STL",
+          "BLK",
+          "TO"
+        ],
+        "coverage_note": "Public top 50; projections omit shooting attempts/makes needed for custom scoring"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.550505+00:00",
+      "sha256": "2fd4ccdd4bdc919c3c02c65c2fb009b27f9bce84152365972751335a9d8d5d84",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "datePublished": "2024-10-11T14:34:00-07:00",
+        "dateModified": "2024-10-11T14:34:00-07:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "ff734a407e50b3da53d493e5b224a6dbea25e597f9dfa6e4ae3b64c2ffcb4f85",
+      "rows": 50
+    },
+    {
+      "source": {
+        "id": "rotowire-2026",
+        "season": 2026,
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+        "parser": "table",
+        "count": 100,
+        "format": "points",
+        "basis": "projected total points",
+        "title_pattern": "2025-26.*Points Leagues",
+        "table": 0,
+        "headers": [
+          "TOTAL FP RANK",
+          "First",
+          "Last",
+          "FP",
+          "FP/G",
+          "FP/MIN"
+        ],
+        "rank_column": "TOTAL FP RANK",
+        "name_columns": [
+          "First",
+          "Last"
+        ],
+        "forecast_columns": [
+          "FP",
+          "FP/G",
+          "FP/MIN"
+        ],
+        "coverage_note": "Public top 100; native scoring forecast, no complete custom-scoring stat line"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.581323+00:00",
+      "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "datePublished": "2025-09-03T14:29:00-07:00",
+        "dateModified": "2025-09-03T14:29:00-07:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "47bfbba251954961e97e68b3fa4119d835ff0a9ea37c721e856eb5405b0b1373",
+      "rows": 100
+    },
+    {
+      "source": {
+        "id": "rotowire-2026-pergame",
+        "season": 2026,
+        "family": "RotoWire",
+        "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+        "parser": "table",
+        "count": 100,
+        "format": "points",
+        "basis": "projected points per game",
+        "title_pattern": "2025-26.*Points Leagues",
+        "table": 1,
+        "headers": [
+          "FP PER GAME RANK",
+          "First",
+          "Last",
+          "FP",
+          "FP/G",
+          "FP/MIN"
+        ],
+        "rank_column": "FP PER GAME RANK",
+        "name_columns": [
+          "First",
+          "Last"
+        ],
+        "forecast_columns": [
+          "FP",
+          "FP/G",
+          "FP/MIN"
+        ],
+        "coverage_note": "Public top 100; native scoring forecast, no complete custom-scoring stat line"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.620053+00:00",
+      "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "datePublished": "2025-09-03T14:29:00-07:00",
+        "dateModified": "2025-09-03T14:29:00-07:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "01f27d05ff40015d73038578e445c814e409a2de38969248d91c9a1198715dff",
+      "rows": 100
+    },
+    {
+      "source": {
+        "id": "nba-rotowire-2026",
+        "season": 2026,
+        "family": "RotoWire",
+        "url": "https://www.nba.com/news/nba-fantasy-early-top-100-fantasy-rankings-for-2025-26-points-leagues",
+        "parser": "ordered",
+        "count": 100,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "Early Top 100.*2025-26",
+        "name_split": ",",
+        "coverage_note": "Early July snapshot; same publisher family as RotoWire, not an independent vote"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.661398+00:00",
+      "sha256": "36afde19f790ff3a34159b6553cfcceccfa3260fe79b8f448936c2c8102a9c2b",
+      "status": "preseason",
+      "note": "Publisher/PDF dates precede cutoff; original bytes are not independently timestamped",
+      "date_evidence": {
+        "datePublished": "2025-07-11T13:00:05Z",
+        "dateModified": "2025-07-16T03:32:14Z"
+      },
+      "full_league_projection": false,
+      "board_sha256": "782fc5e31d45bf3ca8518d27b752424c7b989f04cb2b75743119ebff0f919593",
+      "rows": 100
+    },
+    {
+      "source": {
+        "id": "rotowire-2027",
+        "season": 2027,
+        "family": "RotoWire",
+        "url": "https://www.nba.com/news/nba-fantasy-top-150-for-2026-27-points-leagues",
+        "parser": "ordered",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "Top 150.*2026-27 points",
+        "name_split": ",",
+        "combine_lists": true,
+        "coverage_note": "NBA.com syndication of RotoWire; do not double-count direct article"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.699209+00:00",
+      "sha256": "fc5754f037821e6ec70f8357c09bc6344d5d7b6caf3aaf408421fa55b45dead9",
+      "status": "prospective",
+      "note": "Captured before this league's draft; no season outcomes exist yet",
+      "date_evidence": {
+        "datePublished": "2026-09-15T17:07:04Z",
+        "dateModified": "2026-10-15T23:54:29Z"
+      },
+      "full_league_projection": false,
+      "board_sha256": "35c5beca31388a5b0b3aefc0a7bbf3f759406a9a25842c9731b06a096b0d7f26",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "fantrax-2027",
+        "season": 2027,
+        "family": "FantraxHQ",
+        "url": "https://fantraxhq.com/2026-27-fantasy-basketball-points-league-rankings-updated/",
+        "parser": "table",
+        "count": 200,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "2026.27.*Points League",
+        "headers": [
+          "Rnk",
+          "Player",
+          "Team",
+          "Pos",
+          "Tier"
+        ],
+        "rank_column": "Rnk",
+        "name_columns": [
+          "Player"
+        ]
+      },
+      "retrieved_at": "2026-10-17T06:26:09.741274+00:00",
+      "sha256": "c13bf821482ec9f737195c4eddcb55523d9bc701c7236b54ed895e1646178a12",
+      "status": "prospective",
+      "note": "Captured before this league's draft; no season outcomes exist yet",
+      "date_evidence": {
+        "datePublished": "2026-10-12T10:05:15+00:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "99dddf7bf94c5db417280b4e4416b85d95255dea9a3d3782928b8c61803d30ed",
+      "rows": 200
+    },
+    {
+      "source": {
+        "id": "fantrax-2020",
+        "season": 2020,
+        "family": "FantraxHQ",
+        "url": "https://www.fantraxhq.com/2019-20-top-150-fantasy-basketball-points-league-rankings/",
+        "parser": "table",
+        "count": 150,
+        "format": "points",
+        "basis": "published expert order",
+        "title_pattern": "POINTS LEAGUE RANKINGS",
+        "headers": [
+          "Rnk",
+          "Player",
+          "Team",
+          "Pos."
+        ],
+        "rank_column": "Rnk",
+        "name_columns": [
+          "Player"
+        ],
+        "position_column": "Pos.",
+        "coverage_note": "Modified after opening night; diagnostic only without a pre-draft archive"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.787963+00:00",
+      "sha256": "87063e8396475a853d7bcbf524f3cf52897af698f2bcc71ede5c115b973e0d22",
+      "status": "diagnostic",
+      "note": "Source was modified on/after the pre-draft cutoff; no clean historical snapshot",
+      "date_evidence": {
+        "datePublished": "2019-09-06T11:01:10+00:00",
+        "dateModified": "2019-10-28T00:25:22+00:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "37e8c3f8d151dbb2704b9c6792871c1bcaaad1a4664b35a67c43c525a8f1c168",
+      "rows": 150
+    },
+    {
+      "source": {
+        "id": "fantrax-2022-cat",
+        "season": 2022,
+        "family": "FantraxHQ",
+        "url": "https://fantraxhq.com/2021-22-fantasy-basketball-rankings/",
+        "parser": "table",
+        "count": 145,
+        "format": "categories",
+        "basis": "published expert order",
+        "title_pattern": "2021-22 Fantasy Basketball Rankings",
+        "headers": [
+          "Rnk",
+          "Player",
+          "Team",
+          "Pos",
+          "MO",
+          "MT",
+          "KF",
+          "BN"
+        ],
+        "rank_column": "Rnk",
+        "name_columns": [
+          "Player"
+        ],
+        "allow_ties": true,
+        "coverage_note": "Category/format-unspecified consensus with four named analysts; not a points board"
+      },
+      "retrieved_at": "2026-10-17T06:26:09.827859+00:00",
+      "sha256": "dbb011adcf57213c9109645179c06c26e5ef6d247e7e0c001233465a02d6a6d2",
+      "status": "category_only",
+      "note": "Category rankings are excluded from points-board tests",
+      "date_evidence": {
+        "datePublished": "2021-09-03T11:28:22+00:00",
+        "dateModified": "2021-10-05T13:18:14+00:00"
+      },
+      "full_league_projection": false,
+      "board_sha256": "e3a59ab4dd657140007e483d736ae5fb8e3be83af04e3d92dd3770de51155fc0",
+      "rows": 145
+    }
+  ],
+  "historical_inputs": [
+    {
+      "season": 2018,
+      "pool": 582,
+      "sources": [
+        {
+          "id": "espn-2018",
+          "family": "ESPN",
+          "url": "https://www.espn.com/graphics/2016/1014/top150points1012.pdf",
+          "sha256": "f5cd3258b9aec7d413250867dd9ad18eba115e2258a2487c345a0722272b9aa3",
+          "date_evidence": {
+            "CreationDate": "2017-10-12T16:55:28-0400",
+            "ModDate": "2017-10-12T16:55:28-0400"
+          },
+          "basis": "published expert order",
+          "published_rows": 150,
+          "matched_rows": 150,
+          "usable_rows": 150
+        }
+      ],
+      "unresolved": [],
+      "missing_positions": 0,
+      "position_fallback": 5,
+      "input_sha256": "adfc7961760d73c6c6966e52e3dd3a78145d67c8247297914c8812092d16b2e0"
+    },
+    {
+      "season": 2019,
+      "pool": 632,
+      "sources": [
+        {
+          "id": "espn-2019",
+          "family": "ESPN",
+          "url": "https://www.espn.com/graphics/2016/1014/2018fantasyhoopscheatsheetsptsrk.pdf",
+          "sha256": "1d8dcb5fca7b9604efc9822b5bee51c46a283de7181c39bff256223c0a3231cb",
+          "date_evidence": {
+            "CreationDate": "2018-10-04T10:18:07-0400",
+            "ModDate": "2018-10-04T10:18:07-0400"
+          },
+          "basis": "published expert order",
+          "published_rows": 150,
+          "matched_rows": 150,
+          "usable_rows": 150
+        }
+      ],
+      "unresolved": [],
+      "missing_positions": 2,
+      "position_fallback": 0,
+      "input_sha256": "fa4e9d144d9ea9861c0224a2909712d50cb209cbce9a34573c10c93aba54762e"
+    },
+    {
+      "season": 2023,
+      "pool": 677,
+      "sources": [
+        {
+          "id": "espn-2023",
+          "family": "ESPN",
+          "url": "https://g.espncdn.com/s/fbadraftkit/2022-2023/FBA2022CSpts.pdf",
+          "sha256": "35241275d1b731718d3936cd2c6c54222ad44d6cdb2e9a8f85c58788b8315e2a",
+          "date_evidence": {
+            "CreationDate": "2022-10-12T17:44:59-0400",
+            "ModDate": "2022-10-12T17:44:59-0400"
+          },
+          "basis": "published expert order",
+          "published_rows": 200,
+          "matched_rows": 200,
+          "usable_rows": 200
+        },
+        {
+          "id": "rotowire-2023",
+          "family": "RotoWire",
+          "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-cheat-sheet-2022-23-top-players-sleepers-busts-66579",
+          "sha256": "a46a1a8323d05739404624838412d565364d882b21e2c5d81ef5257acf3f843e",
+          "date_evidence": {
+            "datePublished": "2022-10-12T14:10:00-07:00",
+            "dateModified": "2022-10-12T14:23:00-07:00"
+          },
+          "basis": "published expert order",
+          "published_rows": 50,
+          "matched_rows": 50,
+          "usable_rows": 50
+        }
+      ],
+      "unresolved": [],
+      "missing_positions": 28,
+      "position_fallback": 7,
+      "input_sha256": "e364b4f380b24a9adc66d80a13f83d3d473d88aa6ebac0e063ea263e62aa1365"
+    },
+    {
+      "season": 2024,
+      "pool": 667,
+      "sources": [
+        {
+          "id": "espn-2024",
+          "family": "ESPN",
+          "url": "https://g.espncdn.com/s/fbadraftkit/2023-2024/FBA2024top200PTS.pdf",
+          "sha256": "cc3a83b3ec9f1c5fef165c922b3d38ddfb045cc034f5a3bd31cd177e4c0161fe",
+          "date_evidence": {
+            "CreationDate": "2023-10-20T12:41:10-0700",
+            "ModDate": "2023-10-20T12:41:10-0700"
+          },
+          "basis": "published expert order",
+          "published_rows": 200,
+          "matched_rows": 200,
+          "usable_rows": 200
+        }
+      ],
+      "unresolved": [],
+      "missing_positions": 56,
+      "position_fallback": 9,
+      "input_sha256": "c0da9b9621b206830b5d4699f5b76aef757f28dcf5e9713845c7af2311fcaf37"
+    },
+    {
+      "season": 2025,
+      "pool": 625,
+      "sources": [
+        {
+          "id": "espn-2025",
+          "family": "ESPN",
+          "url": "https://g.espncdn.com/s/fbadraftkit/2024-25/FBA24ptsCS.pdf",
+          "sha256": "9b1a0a0d6f0af929c71cb6e291f804285c51c8e3d1b95344f07c2d2a4e136cad",
+          "date_evidence": {
+            "CreationDate": "2024-10-18T15:09:39-0400",
+            "ModDate": "2024-10-18T15:09:39-0400"
+          },
+          "basis": "published expert order",
+          "published_rows": 150,
+          "matched_rows": 150,
+          "usable_rows": 150
+        },
+        {
+          "id": "rotowire-2025",
+          "family": "RotoWire",
+          "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2024-projections-85939",
+          "sha256": "2fd4ccdd4bdc919c3c02c65c2fb009b27f9bce84152365972751335a9d8d5d84",
+          "date_evidence": {
+            "datePublished": "2024-10-11T14:34:00-07:00",
+            "dateModified": "2024-10-11T14:34:00-07:00"
+          },
+          "basis": "published expert order",
+          "published_rows": 50,
+          "matched_rows": 50,
+          "usable_rows": 50
+        },
+        {
+          "id": "rotoworld-2025",
+          "family": "Rotoworld",
+          "url": "https://nbcsports.brightspotcdn.com/03/10/b09f526442aab7ad4db7ba3584ed/rotoworld-2024-25-fantasy-basketball-kit.pdf",
+          "sha256": "65802c4ee339d82a38e956bc4e56c6be724711122622e93725143b3e08c729ec",
+          "date_evidence": {
+            "CreationDate": "2024-10-01T13:11:28-0500",
+            "ModDate": "2024-10-01T15:30:09-0500"
+          },
+          "basis": "published expert order",
+          "published_rows": 200,
+          "matched_rows": 200,
+          "usable_rows": 200
+        }
+      ],
+      "unresolved": [],
+      "missing_positions": 48,
+      "position_fallback": 12,
+      "input_sha256": "99e27dd4c9f956eaccd098983283fe1466e6a321b64c3726cafda532ad2addf5"
+    },
+    {
+      "season": 2026,
+      "pool": 654,
+      "sources": [
+        {
+          "id": "espn-2026",
+          "family": "ESPN",
+          "url": "https://g.espncdn.com/s/fbadraftkit/2025-26/fbacheatsheetPts.pdf",
+          "sha256": "d7f01cb8dac4d4378c7e502e6d5efec3c2d5d5e0cb0b52d8f9bad39ec93dcee7",
+          "date_evidence": {
+            "CreationDate": "2025-10-20T17:10:30-0400",
+            "ModDate": "2025-10-20T17:10:30-0400"
+          },
+          "basis": "published expert order",
+          "published_rows": 150,
+          "matched_rows": 149,
+          "usable_rows": 149
+        },
+        {
+          "id": "nba-rotowire-2026",
+          "family": "RotoWire",
+          "url": "https://www.nba.com/news/nba-fantasy-early-top-100-fantasy-rankings-for-2025-26-points-leagues",
+          "sha256": "36afde19f790ff3a34159b6553cfcceccfa3260fe79b8f448936c2c8102a9c2b",
+          "date_evidence": {
+            "datePublished": "2025-07-11T13:00:05Z",
+            "dateModified": "2025-07-16T03:32:14Z"
+          },
+          "basis": "published expert order",
+          "published_rows": 100,
+          "matched_rows": 100,
+          "usable_rows": 100
+        },
+        {
+          "id": "rotowire-2026-pergame",
+          "family": "RotoWire",
+          "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+          "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+          "date_evidence": {
+            "datePublished": "2025-09-03T14:29:00-07:00",
+            "dateModified": "2025-09-03T14:29:00-07:00"
+          },
+          "basis": "projected points per game",
+          "published_rows": 100,
+          "matched_rows": 100,
+          "usable_rows": 100
+        },
+        {
+          "id": "rotowire-2026",
+          "family": "RotoWire",
+          "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+          "sha256": "a1e763353a03b2f3b0c075bd85a07a4a37a4833ca9c633a094c08d34a8aa02e7",
+          "date_evidence": {
+            "datePublished": "2025-09-03T14:29:00-07:00",
+            "dateModified": "2025-09-03T14:29:00-07:00"
+          },
+          "basis": "projected total points",
+          "published_rows": 100,
+          "matched_rows": 100,
+          "usable_rows": 100
+        }
+      ],
+      "unresolved": [
+        {
+          "source": "espn-2026",
+          "rank": 110,
+          "name": "Egor Demin",
+          "reason": "unmatched or ambiguous; no unique prior NBA identity"
+        }
+      ],
+      "missing_positions": 44,
+      "position_fallback": 4,
+      "input_sha256": "d5c96faec10f4989933eae60f40d5381ede026164f99c6bc7b012bc79627e01b"
+    }
+  ],
+  "unscored_validation": {
+    "complete_unscored_leagues": 12,
+    "picks": 2304,
+    "decision_sha256": "372c70c562a8305f96480c543c13e72f7ed2a6b56332e56a61570dce27b25982",
+    "validation": "Every full league has unique picks, 12-player rosters, nine legal starters and the primary-center cap; no target outcome was scored"
+  },
+  "collector_sha256": "6a936a01c7f8115359831aa5c7d48238448c97a21fd384b283531d89ebdc81b1",
+  "manifest_sha256": "62a7e26cc33a1ca8b8198172e29ad3242bc473375ccf895068c95ca9ae6224f3",
+  "notes": [
+    "No new outcomes were scored and no strategy winner is claimed.",
+    "RotoWire article, NBA.com syndication, total and per-game lists belong to the same publisher family.",
+    "Historical publisher/PDF dates are evidence, not independently authenticated original archive timestamps.",
+    "Public rank subsets are not expanded with fabricated ranks; native forecasts are not custom league projections.",
+    "Duplicate fantasy identities use unique prior NBA statistics IDs; one rookie identity remains unresolved."
+  ]
+}

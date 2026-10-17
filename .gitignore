@@ -33,3 +33,10 @@ espn/data/season_log.md
 espn/data/espn_auth.json
 espn/data/queued_moves.json
 data/yahoo_profile/
+
+# Basketball private league data, credentials, and generated local scheduler files
+basketball/data/
+basketball-export.json
+basketball-task.xml
+basketball-cron.txt
+BASKETBALL_DRAFT_SHEET.md
