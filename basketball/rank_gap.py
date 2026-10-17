@@ -90,25 +90,33 @@ def ranking(model, scenario):
 
 def choose(model, roster, gone, policy, expert, market, order):
     # Availability and roster legality are applied before looking at disagreement.
-    available = [pid for pid in order if pid not in gone and legal(model, roster, pid)]
-    if not available:
+    available = [pid for pid in order if pid not in gone]
+    best = next((pid for pid in available if legal(model, roster, pid)), None)
+    if best is None:
         raise ValueError("No legal draft choice")
-    best = available[0]
     bargains = [pid for pid in available if pid in expert and pid in market and expert[pid] < market[pid]]
     bargains.sort(key=lambda pid: (expert[pid]-market[pid], expert[pid], pid))
+    # Only the first five legal bargains enter the audit; lower ones cannot win.
+    shortlist = []
+    for pid in bargains:
+        if legal(model, roster, pid):
+            shortlist.append(pid)
+            if len(shortlist) == 5:
+                break
     candidates = bargains
     if policy == "gap_window":
         candidates = [pid for pid in bargains if best in expert and expert[pid] < expert[best]+model.cfg["teams"]]
     elif policy not in POLICIES:
         raise ValueError("Unknown rank-gap policy")
-    chosen = candidates[0] if policy != "expert_best" and candidates else best
+    candidate = next((pid for pid in candidates if legal(model, roster, pid)), None) if policy != "expert_best" else None
+    chosen = candidate if candidate is not None else best
     def row(pid):
         e, m = expert.get(pid), market.get(pid)
         return {"id": pid, "name": model.by_id[pid]["name"], "expert_rank": e, "espn_rank": m,
                 "gap": e-m if e is not None and m is not None else None}
     return chosen, {**row(chosen), "best_expert_available": row(best),
-                    "best_gaps_available": [row(pid) for pid in bargains[:5]],
-                    "fallback": policy != "expert_best" and not candidates}
+                    "best_gaps_available": [row(pid) for pid in shortlist],
+                    "fallback": policy != "expert_best" and candidate is None}
 
 
 def simulate(model, target, policy, expert, market, expert_order, opponents):
