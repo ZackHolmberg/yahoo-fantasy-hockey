@@ -7,7 +7,7 @@ from unittest.mock import patch
 from basketball import bans
 from basketball.cli import parser, run
 from basketball.config import load, write_json
-from basketball.draft_advisor import board, orders
+from basketball.draft_advisor import board, orders, expert_board, legal_choices
 from basketball.espn import Client, player
 from basketball.model import Model
 from test_basketball import athlete, snapshot
@@ -134,6 +134,31 @@ class AdvisorTests(unittest.TestCase):
         self.assertEqual(snap['players'][0]['draft_rank'], 27)
         filters = request.call_args_list[1].kwargs['filters']['players']
         self.assertEqual(filters['sortDraftRanks']['value'], 'STANDARD')
+
+    def test_expert_board_prefers_published_order_over_projection_and_allows_rookies(self):
+        self.players[1]['splits'] = []
+        model = Model(self.cfg, snapshot(self.players))
+        result = expert_board(model, 'rotowire')
+        self.assertFalse(model.by_id[2]['ranked'])
+        self.assertEqual(result['players'][0]['id'], 2)
+        self.assertEqual(result['players'][0]['published_expert_ranks'], {'rotowire': 1})
+        bans.edit(self.cfg, 'players', {'id': 2, 'name': 'Player 2'})
+        self.assertEqual(expert_board(model, 'rotowire')['players'][0]['id'], 1)
+
+    def test_shared_legality_excludes_taken_foreign_owned_and_position_caps(self):
+        self.cfg['position_limits'] = {'PG': 1}
+        write_json(self.root/'draft.json', {'picks': [{'player': 1, 'team': self.cfg['team_id'], 'pick': 1}]})
+        self.assertEqual(legal_choices(self.model, [1, 2, 3]), [])
+        self.cfg['position_limits'] = {}
+        self.model.by_id[3]['owner'] = 99
+        self.assertEqual(legal_choices(self.model, [1, 2, 3]), [2])
+
+    def test_expert_watch_is_explicit_and_browser_cannot_silently_use_model_strategy(self):
+        args = parser().parse_args(['draft', 'watch', '--strategy', 'expert', '--source', 'rotowire', '--execute'])
+        self.assertEqual(args.strategy, 'expert')
+        args.transport = 'browser'
+        with self.assertRaisesRegex(ValueError, 'API transport'):
+            run(args)
 
 
 if __name__ == '__main__':

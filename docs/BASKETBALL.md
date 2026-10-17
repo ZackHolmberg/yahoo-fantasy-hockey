@@ -497,6 +497,23 @@ termination before removing that empty directory.
 
 ## Verification limits and tests
 
+### Automatic expert drafting
+
+`python -m basketball draft watch --transport api --strategy expert --source rotowire --execute`
+selects the highest available player on the current expert board, subject to
+personal bans, starter coverage, position caps and current availability checks.
+It uses native API turn/clock checks, acknowledgement and recovery. The explicit
+`expert` strategy uses the selected publisher; omitting it retains the previous
+model strategy. Expert automatic drafting supports only the API transport and
+never silently falls back when a source is missing. Legal expert rookies do not
+require a historical projection. `rotoworld`, `fantrax` and `consensus` can also
+be selected with `--source`. This is greedy expert order, not the timing hybrid.
+
+The user's October 18 execution request and supervision details are recorded in
+[the draft handoff](BASKETBALL_DRAFT_HANDOFF.md). Availability checks may exclude
+injured players pending an existing explicit risk review. No risk acceptance is
+automatically created by the watcher.
+
 ### Expert quality with market timing
 
 At our turn, `python -m basketball --fetch draft hybrid --source rotowire --verify`

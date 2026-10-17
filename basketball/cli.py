@@ -112,6 +112,8 @@ def parser():
     watch.add_argument("--slot", type=int)
     watch.add_argument("--execute", action="store_true", help="Pick on your turns using the live draft API")
     watch.add_argument("--transport", choices=("api", "browser"), default="api")
+    watch.add_argument("--strategy", choices=("model", "expert"), default="model", help="Expert follows the selected board with legality and availability gates")
+    watch.add_argument("--source", choices=("rotowire", "rotoworld", "fantrax", "consensus"), default="rotowire")
     for action in ("mine", "taken", "undo", "paste"):
         s = ds.add_parser(action)
         s.add_argument("names", nargs="*")
@@ -236,6 +238,8 @@ def standings(model):
 
 def run(args):
     cfg = load(args.config)
+    if args.command == "draft" and args.action == "watch" and args.strategy == "expert" and args.transport != "api":
+        raise ValueError("Expert automatic drafting requires the API transport")
     if args.command == "draft" and args.action in {"bans", "ban", "unban"}:
         if args.action == "bans":
             return bans.listing(cfg)

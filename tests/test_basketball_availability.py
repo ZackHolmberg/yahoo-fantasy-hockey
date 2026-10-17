@@ -124,6 +124,12 @@ class AvailabilityExecutionTests(unittest.TestCase):
         self.assertEqual(chosen['id'], 2)
         self.assertEqual(len(checks), 2)
 
+    def test_auto_choice_can_follow_expert_order_instead_of_model_order(self):
+        with patch('basketball.availability.check', side_effect=[{'allowed': False}, {'allowed': True}]):
+            chosen, checks = verified_choice(self.model, [{'id': 3}, {'id': 2}])
+        self.assertEqual(chosen['id'], 2)
+        self.assertEqual(len(checks), 2)
+
     def test_browser_execution_uses_same_gate_before_browser_start(self):
         from basketball.browser import draft_action
         with patch('basketball.browser.availability.require', side_effect=ValueError('Availability blocked')):

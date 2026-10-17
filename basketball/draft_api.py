@@ -18,6 +18,7 @@ from .bans import auction, board
 from .espn import Client, import_settings, normalize
 from .manager import run_lock
 from .model import Model
+from .draft_advisor import expert_board, legal_choices
 from . import availability, bans
 
 
@@ -306,7 +307,7 @@ class Room:
             raise ValueError("Draft is not available for commands")
         if player["id"] in {p["playerId"] for p in self.picks}:
             raise ValueError("Player has already been drafted")
-        if player["id"] not in {p["id"] for p in board(model, len(model.players))["players"]}:
+        if not legal_choices(model, [player["id"]]):
             raise ValueError("Player cannot fit the remaining draft roster")
         if action == "queue":
             if self.draft_type != 1:
@@ -396,7 +397,7 @@ def preview(model, action, name, bid=None):
     bans.require(model.cfg, player)
     if action not in {"pick", "queue", "bid"}:
         raise ValueError("Unsupported draft API action")
-    if player["id"] not in {p["id"] for p in board(model, len(model.players))["players"]}:
+    if not legal_choices(model, [player["id"]]):
         raise ValueError("Player cannot fit the remaining draft roster")
     if action == "bid":
         quote = auction(model, player["id"], (bid or 1) - 1)
@@ -408,6 +409,7 @@ def preview(model, action, name, bid=None):
 
 
 def run(cfg, args):
+    expert = getattr(args, "strategy", "model") == "expert"
     with run_lock(cfg), Room(cfg) as room:
         room.refresh()
         if args.action in {"status", "reconcile", "resolve"}:
@@ -426,11 +428,16 @@ def run(cfg, args):
         last = None
         while room.state != 2:
             if len(room.picks) != last:
-                current = board(room.model(), current=room.next_pick(), slot=args.slot)
+                model = room.model()
+                current = expert_board(model, args.source) if expert else board(model, current=room.next_pick(), slot=args.slot)
                 print(json.dumps({**room.status(), "recommendations": current}, ensure_ascii=False), flush=True)
                 last = len(room.picks)
             if args.execute and room.state == 1 and room.selecting == cfg["team_id"] and room.seconds_left() >= 25:
-                candidate, checks = availability.verified_choice(room.model())
+                model = room.model()
+                if expert:
+                    candidate, checks = availability.verified_choice(model, expert_board(model, args.source)["players"])
+                else:
+                    candidate, checks = availability.verified_choice(model)
                 print(json.dumps({"availability_checks": checks}, ensure_ascii=False), flush=True)
                 print(json.dumps(room.execute("pick", candidate["id"]), ensure_ascii=False), flush=True)
             room.receive(1)

@@ -171,10 +171,10 @@ def review_risk(cfg, player, note, hours):
     return review
 
 
-def verified_choice(model):
+def verified_choice(model, candidates=None):
     from .bans import board
     checks = []
-    for candidate in board(model)["players"]:
+    for candidate in board(model)["players"] if candidates is None else candidates:
         result = check(model.cfg, model.by_id[candidate["id"]])
         checks.append(result)
         if result["allowed"]:

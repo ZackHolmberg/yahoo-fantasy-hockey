@@ -52,6 +52,33 @@ def orders(model, source, library):
     return quality, market, published, details
 
 
+def legal_choices(model, order):
+    """Draft legality is independent of whether ESPN supplied a projection."""
+    picks = drafting.state(model)["picks"]
+    if any(p["player"] not in model.by_id for p in picks):
+        raise ValueError("Drafted players are missing from the snapshot; refresh the pool")
+    gone = {p["player"] for p in picks}
+    mine = [model.by_id[p["player"]] for p in picks if p["team"] == model.cfg["team_id"]]
+    policy = bans.listing(model.cfg)
+    return [pid for pid in order if pid not in gone and model.by_id[pid]["owner"] in (0, model.cfg["team_id"])
+            and model.by_id[pid].get("active") is not False
+            and not bans.reason(model.cfg, model.by_id[pid], policy=policy) and legal(model, mine, pid)]
+
+
+def expert_board(model, source="rotowire", limit=20):
+    """Greedy expert order, with ESPN completion only for unpublished tails."""
+    if model.cfg["format"] != "points" or model.cfg["draft"]["type"] != "snake":
+        raise ValueError("Expert drafting requires a points snake draft")
+    quality, _, published, details = orders(model, source, path(model.cfg, "ranking-library"))
+    ordinal = {pid: i+1 for i, pid in enumerate(quality)}
+    choices = legal_choices(model, quality)[:limit]
+    return {"strategy": "expert", "source": source, "sources": details, "availability_checked": False,
+            "players": [{"id": pid, "name": model.by_id[pid]["name"], "quality_order": ordinal[pid],
+                         "espn_rank": model.by_id[pid]["draft_rank"],
+                         "published_expert_ranks": {name: ranks.get(pid) for name, ranks in published.items()}}
+                        for pid in choices]}
+
+
 def board(model, source="consensus", slot=None, current=None, library=None, verify=False):
     cfg = model.cfg
     if cfg["format"] != "points" or cfg["draft"]["type"] != "snake":

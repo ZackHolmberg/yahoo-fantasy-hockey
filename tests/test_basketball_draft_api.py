@@ -207,6 +207,37 @@ class DraftApiTests(unittest.TestCase):
         self.assertEqual(result["roster"][0]["name"], "Player 1")
         self.assertEqual(read_json(path(self.cfg, "draft-result.json")), result)
 
+    def test_api_can_pick_legal_expert_rookie_without_a_projection(self):
+        room = self.room()
+        room.raw['players'][0]['player']['stats'] = []
+        self.assertFalse(room.model().by_id[1]['ranked'])
+        self.assertTrue(room.execute('pick', 1)['verified'])
+        self.assertEqual(room.socket.sent.count('SELECT 1\n'), 1)
+
+    def test_expert_watch_verifies_selected_board_order_before_api_submission(self):
+        from basketball.draft_api import run as api_run
+        room = self.room()
+        args = parser().parse_args(['draft', 'watch', '--strategy', 'expert', '--source', 'rotowire', '--execute'])
+        original_execute = room.execute
+        original_receive = room.receive
+        sent = room.socket.sent
+        def execute(*args):
+            result = original_execute(*args)
+            room.state = 2
+            return result
+        candidates = [{'id': 2, 'name': 'Player 2'}, {'id': 1, 'name': 'Player 1'}]
+        with patch('basketball.draft_api.Room', return_value=room), patch.object(Room, '__enter__', return_value=room), \
+                patch('basketball.draft_api.expert_board', return_value={'players': candidates}) as expert, \
+                patch('basketball.availability.check', side_effect=[{'allowed': False}, {'allowed': True}]) as check, \
+                patch.object(room, 'execute', side_effect=execute), \
+                patch.object(room, 'receive', side_effect=lambda timeout=1: False if room.state == 2 else original_receive(timeout)), patch('builtins.print'):
+            result = api_run(self.cfg, args)
+        self.assertEqual([call.args[1]['id'] for call in check.call_args_list], [2, 1])
+        self.assertEqual(sent.count('SELECT 1\n'), 1)
+        self.assertFalse(any(s.startswith('SELECT 2') for s in sent))
+        self.assertEqual(result['state'], 'complete')
+        self.assertTrue(all(call.args[1] == 'rotowire' for call in expert.call_args_list))
+
     def test_draft_security_accepts_plain_text_and_json_string(self):
         from io import BytesIO
         from basketball.espn import Client
