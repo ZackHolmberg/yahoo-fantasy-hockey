@@ -14,11 +14,11 @@ from urllib.parse import urlencode
 from uuid import UUID
 
 from .config import credentials, identity, now, path, read_json, write_json
-from .drafting import auction, board
+from .bans import auction, board
 from .espn import Client, import_settings, normalize
 from .manager import run_lock
 from .model import Model
-from . import availability
+from . import availability, bans
 
 
 # Versioned, big-endian Java storables in INIT. Optional objects begin with a
@@ -301,6 +301,7 @@ class Room:
         return Model(cfg, snap)
 
     def check(self, model, action, player, bid):
+        bans.require(self.cfg, player)
         if self.init is None or self.state not in (0, 1, 3):
             raise ValueError("Draft is not available for commands")
         if player["id"] in {p["playerId"] for p in self.picks}:
@@ -335,11 +336,13 @@ class Room:
         self.refresh()
         model = self.model()
         player = model.find(name)
+        bans.require(self.cfg, player)
         evidence = availability.require(self.cfg, player)
         # Public-source reads can consume clock time or overlap another pick.
         self.refresh()
         model = self.model()
         player = model.find(name)
+        bans.require(self.cfg, player, evidence.get("team"))
         if "fantasy_state" in evidence and evidence["fantasy_state"] != {k: player.get(k) for k in ("status", "active", "team")}:
             raise ValueError("Player status changed during availability verification; refresh before drafting")
         self.check(model, action, player, bid)
@@ -390,6 +393,7 @@ def reconcile(room):
 
 def preview(model, action, name, bid=None):
     player = model.find(name)
+    bans.require(model.cfg, player)
     if action not in {"pick", "queue", "bid"}:
         raise ValueError("Unsupported draft API action")
     if player["id"] not in {p["id"] for p in board(model, len(model.players))["players"]}:

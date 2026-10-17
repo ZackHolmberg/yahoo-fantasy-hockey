@@ -11,7 +11,7 @@ import time
 import urllib.error
 from xml.sax.saxutils import escape
 
-from . import drafting
+from . import drafting, bans
 from .config import ROOT, identity, load, now, path, read_json, write_json
 from .espn import Client, import_settings, load_snapshot, login, normalize
 from .manager import (ledger, lineup_body, matchup_report, reconcile, report,
@@ -87,6 +87,11 @@ def parser():
     ds.add_parser("sync")
     ds.add_parser("reset")
     ds.add_parser("status", help="Read live WebSocket draft state and pending command")
+    ds.add_parser("bans", help="List persistent player and NBA team draft bans")
+    for action in ("ban", "unban"):
+        rule = ds.add_parser(action, help="Add/remove a hard draft exclusion")
+        rule.add_argument("kind", choices=("player", "team"))
+        rule.add_argument("target", help="Player name/ESPN ID or NBA team name/abbreviation/ID")
     available = ds.add_parser("availability", help="Verify current NBA profile, roster and injury sources")
     available.add_argument("player")
     available.add_argument("--refresh", action="store_true")
@@ -226,6 +231,20 @@ def standings(model):
 
 def run(args):
     cfg = load(args.config)
+    if args.command == "draft" and args.action in {"bans", "ban", "unban"}:
+        if args.action == "bans":
+            return bans.listing(cfg)
+        kind = "players" if args.kind == "player" else "teams"
+        if args.action == "unban":
+            return bans.remove(cfg, kind, args.target)
+        if kind == "teams":
+            entry = bans.team(cfg, args.target)
+        elif args.target.isdigit() and int(args.target) > 0:
+            entry = {"id": int(args.target), "name": args.target}
+        else:
+            p = Model(cfg, load_snapshot(cfg, args.snapshot, fresh=args.fetch)).find(args.target)
+            entry = {"id": p["id"], "name": p["name"]}
+        return bans.edit(cfg, kind, entry)
     if args.command == "draft" and args.action in {"availability", "review-risk"}:
         from . import availability
         player = {"id": int(args.player), "name": args.player, "status": "ACTIVE"} if args.player.isdigit() else Model(cfg, load_snapshot(cfg, args.snapshot, fresh=args.fetch)).find(args.player)
@@ -333,7 +352,9 @@ def run(args):
     if args.command == "playoffs":
         return playoff_report(model, args.weeks)
     if args.command in {"rankings", "cheatsheet"}:
-        rows = drafting.rankings(model)[:getattr(args, "limit", cfg["teams"] * 12)]
+        policy = bans.listing(cfg)
+        rows = [r for r in drafting.rankings(model) if not bans.reason(cfg, model.by_id[r["id"]], policy=policy)]
+        rows = rows[:getattr(args, "limit", cfg["teams"] * 12)]
         if args.command == "rankings":
             if args.csv and rows:
                 with open(args.csv, "w", newline="", encoding="utf-8") as f:
@@ -360,7 +381,7 @@ def run(args):
                         cfg["draft"]["slot"] = order.index(cfg["team_id"]) + 1
                     model = Model(cfg, snap)
                     drafting.sync(model)
-                    current = drafting.board(model, slot=args.slot)
+                    current = bans.board(model, slot=args.slot)
                     if current["pick"] != last:
                         print(json.dumps(current, ensure_ascii=False), flush=True)
                         last = current["pick"]
@@ -377,7 +398,7 @@ def run(args):
                 time.sleep(args.seconds)
         with run_lock(cfg):
             if args.action == "best":
-                return {**drafting.board(model, args.limit, args.pick, args.slot), "availability_checked": False,
+                return {**bans.board(model, args.limit, args.pick, args.slot), "availability_checked": False,
                         "availability_instruction": "Use draft availability PLAYER; every executed pick, queue or bid verifies current sources."}
             if args.action == "sync":
                 return drafting.sync(model)
@@ -389,7 +410,7 @@ def run(args):
                 return drafting.record(model, names, cfg["team_id"] if args.action == "mine" else args.team,
                                        args.cost, args.action == "undo", args.action == "paste")
             if args.action == "auction":
-                return drafting.auction(model, args.player, args.current_bid)
+                return bans.auction(model, args.player, args.current_bid)
             if args.transport == "api":
                 from .draft_api import preview
                 return preview(model, args.action, args.player, args.amount)

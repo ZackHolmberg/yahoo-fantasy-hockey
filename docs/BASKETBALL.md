@@ -45,6 +45,43 @@ python -m basketball.rank_gap draft
 python -m basketball.rank_gap score
 ```
 
+## Player and NBA team ban list
+
+Ban a player by name or ESPN player ID, or ban an entire NBA team by name,
+abbreviation or ESPN NBA team ID. Player bans survive trades because they use
+player IDs. Team bans cover every player on that NBA team, including new arrivals
+confirmed by the current public roster check. Fantasy team numbers are separate.
+
+```sh
+python -m basketball draft bans
+python -m basketball draft ban player "Player Name"
+python -m basketball draft ban player 3468
+python -m basketball draft ban team LAL
+python -m basketball draft unban player 3468
+python -m basketball draft unban team LAL
+```
+
+These commands edit local preferences, without submitting ESPN draft commands.
+Player names resolve against the saved snapshot; adding numeric player IDs,
+listing bans and removing existing bans work offline. NBA team additions use the
+public ESPN team catalog and reject ambiguous names. Use the listed name, ID or
+abbreviation when removing a ban. Repeating an addition updates the same entry.
+
+Bans persist in gitignored `basketball/data/draft-bans.json` (the configured data
+directory) until explicitly removed, including across restarts and seasons. They
+are applied to live draft recommendations, rankings, draft sheets, automatic
+selection and explicit picks, queues and bids through both transports. The ban
+list is reread before submission; changes take effect while the watcher runs.
+No injury-risk acceptance overrides a ban. Malformed ban data stops drafting.
+When every candidate is excluded, the assistant stops instead of relaxing bans.
+No players or teams are banned by default.
+
+The list controls this assistant's draft actions. It does not change ESPN's own
+auto-pick preferences or remove players already queued on ESPN. If ESPN takes
+over after a timeout/disconnection, its choices remain outside this control.
+Existing rosters, season waiver/trade actions and historical backtests are not
+changed by draft bans.
+
 ## Current availability before draft writes
 
 Every API pick, queue addition and auction bid now requires fresh public ESPN

@@ -9,6 +9,7 @@ import re
 import urllib.request
 
 from .config import instant, now, path, read_json, write_json
+from . import bans
 
 SITE = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/"
 PROFILE = "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/athletes/"
@@ -70,6 +71,7 @@ def check(cfg, player, refresh=False, sources=None):
               "fantasy_state": {k: player.get(k) for k in ("status", "active", "team")}}
     sources = sources or Sources(cfg)
     try:
+        bans.require(cfg, player)
         url = PROFILE + str(player["id"])
         raw = sources.get(url, refresh)
         result["sources"].append(url)
@@ -127,10 +129,15 @@ def check(cfg, player, refresh=False, sources=None):
                 result.update(status="review", reasons=["Fantasy and current public NBA teams disagree"])
             else:
                 result.update(status="clear", allowed=True, reasons=["Active public profile, current roster membership and no listed injury concern"])
+        blocked = bans.reason(cfg, player, result.get("team"))
+        if blocked:
+            result.update(status="blocked", allowed=False, reasons=[blocked])
         result["condition_sha256"] = fingerprint({k: result.get(k) for k in ("id", "season", "status", "team", "injuries", "reasons", "fantasy_state")})
         review = read_json(path(cfg, "availability-reviews.json"), {}).get(str(player["id"]))
         if result["status"] == "review" and review and review.get("season") == cfg["season"] and review.get("condition_sha256") == result["condition_sha256"] and instant(review["expires_at"]) > at:
             result.update(status="risk_accepted", allowed=True, risk_review=review)
+    except bans.BannedPlayer as exc:
+        result.update(status="blocked", allowed=False, reasons=[str(exc)])
     except (OSError, ValueError, KeyError, TypeError) as exc:
         result.update(status="unknown", allowed=False, reasons=[str(exc)])
     filename = path(cfg, "availability-checks.json")
@@ -141,9 +148,11 @@ def check(cfg, player, refresh=False, sources=None):
 
 
 def require(cfg, player):
+    bans.require(cfg, player)
     result = check(cfg, player, refresh=True)
     if not result["allowed"]:
         raise ValueError(f"Availability {result['status']} for {result['name']}: {'; '.join(result['reasons'])}. Use draft availability/review-risk.")
+    bans.require(cfg, player, result.get("team"))
     return result
 
 
@@ -163,7 +172,7 @@ def review_risk(cfg, player, note, hours):
 
 
 def verified_choice(model):
-    from .drafting import board
+    from .bans import board
     checks = []
     for candidate in board(model)["players"]:
         result = check(model.cfg, model.by_id[candidate["id"]])

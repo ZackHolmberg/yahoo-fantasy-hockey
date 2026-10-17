@@ -7,13 +7,15 @@ import re
 import time
 
 from .config import credentials
-from .drafting import auction, board, state
+from .drafting import state
+from .bans import auction, board
 from .espn import Client
-from . import availability
+from . import availability, bans
 
 
 def draft_action(model, action, name, execute=False, bid=None):
     p = model.find(name)
+    bans.require(model.cfg, p)
     if p["id"] in {x["player"] for x in state(model)["picks"]}:
         raise ValueError("Player is already drafted")
     cfg = model.cfg
@@ -74,7 +76,8 @@ def draft_action(model, action, name, execute=False, bid=None):
             page.locator(ui["bid_input_selector"]).fill(str(bid))
         if button.count() != 1 or not button.is_enabled():
             raise ValueError("The verified player row has no unique enabled action button")
-        availability.require(cfg, p)
+        evidence = availability.require(cfg, p)
+        bans.require(cfg, p, evidence.get("team"))
         if action != "queue":
             clock = page.locator(ui["clock_selector"]).inner_text().strip()
             match = re.fullmatch(r"(?:(\d+):)?(\d{1,2})", clock)
