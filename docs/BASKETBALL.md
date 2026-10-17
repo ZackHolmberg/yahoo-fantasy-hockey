@@ -54,9 +54,19 @@ Raw bytes, dates, hashes, partial coverage and unresolved identities are recorde
 revised/category sources stay outside historical points inputs. These are new
 data inputs, with unscored draft compatibility checks, not new strategy results.
 
+The subsequent [six-season source backtest](BASKETBALL_SOURCE_TEST_RESULTS.md)
+completed 1,728 full leagues. On the three seasons with independent sources,
+primary RotoWire improved fixed-starter points by 3.20% and publisher consensus
+by 2.71% against paired ESPN drafts. Results vary by season and opponent field;
+the [registered comparison](BASKETBALL_SOURCE_TEST_PROTOCOL.md) is retrospective
+and does not automatically replace the production picker.
+
 ```sh
 python -m basketball.ranking_library collect
 python -m basketball.ranking_library build
+python -m basketball.source_backtest prepare
+python -m basketball.source_backtest draft
+python -m basketball.source_backtest score
 ```
 
 ## Player and NBA team ban list

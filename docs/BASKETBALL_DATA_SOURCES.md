@@ -2,6 +2,8 @@
 
 Collected and validated October 17, 2026. There are now **12 historical points-ranking boards (1,600 published entries) across six completed seasons**, plus **three current 2026–27 boards (550 entries)** from independent publisher families. These are data inputs for further experiments; no new source was declared better and no new strategy outcomes were scored.
 
+These inputs were subsequently evaluated in the separate [1,728-draft source comparison](BASKETBALL_SOURCE_TEST_RESULTS.md). The inventory and collection checks below describe the data before that experiment was scored.
+
 ## Historical points boards
 
 | Season | Board | Published entries | Matched / usable in player pool | Notes |
