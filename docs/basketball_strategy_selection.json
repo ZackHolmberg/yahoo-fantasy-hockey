@@ -1,0 +1,17 @@
+{
+  "strategy": "roster_fit",
+  "decision_sha256": "38650f9cac895a8f984fd21cd703feb2cb5b7f3e36a68f86720fdc81d305fd38",
+  "development_scores": {
+    "prior_total": -10.222,
+    "history_blend": -14.317333333333334,
+    "recent_gate": -13.818,
+    "per_game": -12.300333333333334,
+    "durability": -7.641500000000001,
+    "expert_rank": 0.0,
+    "rank_blend": -1.3998333333333333,
+    "risk_blend": 0.8231666666666667,
+    "roster_fit": 0.9633333333333334,
+    "market_patience": 0.9570000000000001
+  },
+  "criterion": "mean season/field starting-nine gain vs expert; expert/mixed only"
+}
