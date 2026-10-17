@@ -29,6 +29,22 @@ invalidate the lock. The experiment saves captures, complete league rosters,
 checksums and scored rows under ignored `basketball/data/strategy-lab/`. The
 production picker is not changed or automatically replaced by an experiment winner.
 
+The [rank-gap experiment](BASKETBALL_RANK_GAP_RESULTS.md) tests
+`expert rank - ESPN rank` at every pick, including an unrestricted rule and a
+one-round expert-rank window. It completed 720 deterministic drafts and records
+8,640 target picks with their alternatives. Neither gap policy beat best expert
+available on average in any of the five comparisons. In the dated 2024-25
+published-board comparison, starter points changed by -5.45% and -1.73%,
+respectively. Historical API ranks lack verified preseason timestamps; those
+comparisons are explicitly retrospective diagnostics. Read the
+[protocol](BASKETBALL_RANK_GAP_PROTOCOL.md) before interpreting the results.
+
+```sh
+python -m basketball.rank_gap prepare
+python -m basketball.rank_gap draft
+python -m basketball.rank_gap score
+```
+
 ## Current availability before draft writes
 
 Every API pick, queue addition and auction bid now requires fresh public ESPN
