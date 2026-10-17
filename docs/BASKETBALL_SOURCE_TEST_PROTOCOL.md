@@ -29,4 +29,6 @@ Score actual season points for all 12 players and for the hindsight best legal f
 
 Publish each season/field/source separately. Aggregate only comparable policies using equal weight per season after averaging that season's fields/slots/seeds. Do not compare a publisher's single available season with a different publisher's six-season average as if they were the same test. Seeds and slots are correlated; these are not 1,728 independent historical seasons. Do not tune on the results, substitute hindsight injury exclusions, or deploy a best retrospective performer automatically.
 
+Also report the primary RotoWire board's equal-season average across its three available seasons, using the same non-per-game/latest-publication rule registered for consensus membership. Its baseline comparisons use ESPN on those same seasons. Older snapshots and per-game variants remain separate diagnostics, not additional independent votes.
+
 Independently verify raw outcome totals and the fixed-nine calculation with a separate slot-bitmask optimizer; validate full-league identity uniqueness, roster size, center caps, starter coverage, pick traces and a repeated real-input draft. Preserve all earlier experiment source files/locks. No daily congestion, weekly matchups, waivers, trades or playoff progression are simulated.
