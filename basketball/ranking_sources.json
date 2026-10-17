@@ -1,0 +1,320 @@
+[
+  {
+    "id": "espn-2018",
+    "season": 2018,
+    "family": "ESPN",
+    "url": "https://www.espn.com/graphics/2016/1014/top150points1012.pdf",
+    "parser": "espn_pdf",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2018.pdf"
+  },
+  {
+    "id": "espn-2019",
+    "season": 2019,
+    "family": "ESPN",
+    "url": "https://www.espn.com/graphics/2016/1014/2018fantasyhoopscheatsheetsptsrk.pdf",
+    "parser": "espn_pdf",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2019.pdf"
+  },
+  {
+    "id": "espn-2023",
+    "season": 2023,
+    "family": "ESPN",
+    "url": "https://g.espncdn.com/s/fbadraftkit/2022-2023/FBA2022CSpts.pdf",
+    "parser": "espn_pdf",
+    "count": 200,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2023.pdf"
+  },
+  {
+    "id": "espn-2025",
+    "season": 2025,
+    "family": "ESPN",
+    "url": "https://g.espncdn.com/s/fbadraftkit/2024-25/FBA24ptsCS.pdf",
+    "parser": "espn_pdf",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2025.pdf"
+  },
+  {
+    "id": "espn-2024",
+    "season": 2024,
+    "family": "ESPN",
+    "url": "https://g.espncdn.com/s/fbadraftkit/2023-2024/FBA2024top200PTS.pdf",
+    "parser": "espn_pdf",
+    "count": 200,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2024.pdf"
+  },
+  {
+    "id": "espn-2026",
+    "season": 2026,
+    "family": "ESPN",
+    "url": "https://g.espncdn.com/s/fbadraftkit/2025-26/fbacheatsheetPts.pdf",
+    "parser": "espn_pdf",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "cache_from": "basketball/data/strategy-lab/raw/espn-2026.pdf"
+  },
+  {
+    "id": "rotoworld-2025",
+    "season": 2025,
+    "family": "Rotoworld",
+    "url": "https://nbcsports.brightspotcdn.com/03/10/b09f526442aab7ad4db7ba3584ed/rotoworld-2024-25-fantasy-basketball-kit.pdf",
+    "parser": "nbc_pdf",
+    "count": 200,
+    "format": "points",
+    "basis": "published expert order",
+    "pages": [
+      72,
+      73
+    ],
+    "cache_from": "basketball/data/strategy-lab/raw/rotoworld-2025.pdf"
+  },
+  {
+    "id": "rotoworld-2027",
+    "season": 2027,
+    "family": "Rotoworld",
+    "url": "https://nbcsports.brightspotcdn.com/27/f4/76d4f84f47558c1d78522de7270e/rotoworld-2026-27-fantasy-basketball-kit-v2.pdf",
+    "parser": "nbc_pdf",
+    "count": 200,
+    "format": "points",
+    "basis": "published expert order",
+    "pages": [
+      44,
+      45
+    ],
+    "cache_from": "basketball/data/strategy-lab/raw/rotoworld-2027.pdf"
+  },
+  {
+    "id": "rotowire-2023",
+    "season": 2023,
+    "family": "RotoWire",
+    "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-cheat-sheet-2022-23-top-players-sleepers-busts-66579",
+    "parser": "ordered",
+    "count": 50,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "Cheat Sheet 2022-23",
+    "name_split": "(?!)",
+    "trailing_team_position": true,
+    "coverage_note": "Public top 50 points list; full customized list requires subscription",
+    "name_aliases": {
+      "G. Antetokounmpo": "Giannis Antetokounmpo",
+      "S. Gilgeous-Alexander": "Shai Gilgeous-Alexander",
+      "A. Seng\u00fcn": "Alperen Sengun"
+    }
+  },
+  {
+    "id": "rotowire-2025",
+    "season": 2025,
+    "family": "RotoWire",
+    "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2024-projections-85939",
+    "parser": "table",
+    "count": 50,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "Points League Rankings.*2024",
+    "headers": [
+      "Rank",
+      "Name",
+      "Team",
+      "Pos",
+      "FPTS",
+      "G",
+      "MIN",
+      "PTS",
+      "REB",
+      "AST",
+      "STL",
+      "BLK",
+      "TO"
+    ],
+    "rank_column": "Rank",
+    "name_columns": [
+      "Name"
+    ],
+    "forecast_columns": [
+      "FPTS",
+      "G",
+      "MIN",
+      "PTS",
+      "REB",
+      "AST",
+      "STL",
+      "BLK",
+      "TO"
+    ],
+    "coverage_note": "Public top 50; projections omit shooting attempts/makes needed for custom scoring"
+  },
+  {
+    "id": "rotowire-2026",
+    "season": 2026,
+    "family": "RotoWire",
+    "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+    "parser": "table",
+    "count": 100,
+    "format": "points",
+    "basis": "projected total points",
+    "title_pattern": "2025-26.*Points Leagues",
+    "table": 0,
+    "headers": [
+      "TOTAL FP RANK",
+      "First",
+      "Last",
+      "FP",
+      "FP/G",
+      "FP/MIN"
+    ],
+    "rank_column": "TOTAL FP RANK",
+    "name_columns": [
+      "First",
+      "Last"
+    ],
+    "forecast_columns": [
+      "FP",
+      "FP/G",
+      "FP/MIN"
+    ],
+    "coverage_note": "Public top 100; native scoring forecast, no complete custom-scoring stat line"
+  },
+  {
+    "id": "rotowire-2026-pergame",
+    "season": 2026,
+    "family": "RotoWire",
+    "url": "https://www.rotowire.com/basketball/article/fantasy-basketball-points-league-rankings-2025-26-nba-projections-95771",
+    "parser": "table",
+    "count": 100,
+    "format": "points",
+    "basis": "projected points per game",
+    "title_pattern": "2025-26.*Points Leagues",
+    "table": 1,
+    "headers": [
+      "FP PER GAME RANK",
+      "First",
+      "Last",
+      "FP",
+      "FP/G",
+      "FP/MIN"
+    ],
+    "rank_column": "FP PER GAME RANK",
+    "name_columns": [
+      "First",
+      "Last"
+    ],
+    "forecast_columns": [
+      "FP",
+      "FP/G",
+      "FP/MIN"
+    ],
+    "coverage_note": "Public top 100; native scoring forecast, no complete custom-scoring stat line"
+  },
+  {
+    "id": "nba-rotowire-2026",
+    "season": 2026,
+    "family": "RotoWire",
+    "url": "https://www.nba.com/news/nba-fantasy-early-top-100-fantasy-rankings-for-2025-26-points-leagues",
+    "parser": "ordered",
+    "count": 100,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "Early Top 100.*2025-26",
+    "name_split": ",",
+    "coverage_note": "Early July snapshot; same publisher family as RotoWire, not an independent vote"
+  },
+  {
+    "id": "rotowire-2027",
+    "season": 2027,
+    "family": "RotoWire",
+    "url": "https://www.nba.com/news/nba-fantasy-top-150-for-2026-27-points-leagues",
+    "parser": "ordered",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "Top 150.*2026-27 points",
+    "name_split": ",",
+    "combine_lists": true,
+    "coverage_note": "NBA.com syndication of RotoWire; do not double-count direct article"
+  },
+  {
+    "id": "fantrax-2027",
+    "season": 2027,
+    "family": "FantraxHQ",
+    "url": "https://fantraxhq.com/2026-27-fantasy-basketball-points-league-rankings-updated/",
+    "parser": "table",
+    "count": 200,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "2026.27.*Points League",
+    "headers": [
+      "Rnk",
+      "Player",
+      "Team",
+      "Pos",
+      "Tier"
+    ],
+    "rank_column": "Rnk",
+    "name_columns": [
+      "Player"
+    ]
+  },
+  {
+    "id": "fantrax-2020",
+    "season": 2020,
+    "family": "FantraxHQ",
+    "url": "https://www.fantraxhq.com/2019-20-top-150-fantasy-basketball-points-league-rankings/",
+    "parser": "table",
+    "count": 150,
+    "format": "points",
+    "basis": "published expert order",
+    "title_pattern": "POINTS LEAGUE RANKINGS",
+    "headers": [
+      "Rnk",
+      "Player",
+      "Team",
+      "Pos."
+    ],
+    "rank_column": "Rnk",
+    "name_columns": [
+      "Player"
+    ],
+    "position_column": "Pos.",
+    "coverage_note": "Modified after opening night; diagnostic only without a pre-draft archive"
+  },
+  {
+    "id": "fantrax-2022-cat",
+    "season": 2022,
+    "family": "FantraxHQ",
+    "url": "https://fantraxhq.com/2021-22-fantasy-basketball-rankings/",
+    "parser": "table",
+    "count": 145,
+    "format": "categories",
+    "basis": "published expert order",
+    "title_pattern": "2021-22 Fantasy Basketball Rankings",
+    "headers": [
+      "Rnk",
+      "Player",
+      "Team",
+      "Pos",
+      "MO",
+      "MT",
+      "KF",
+      "BN"
+    ],
+    "rank_column": "Rnk",
+    "name_columns": [
+      "Player"
+    ],
+    "allow_ties": true,
+    "coverage_note": "Category/format-unspecified consensus with four named analysts; not a points board"
+  }
+]

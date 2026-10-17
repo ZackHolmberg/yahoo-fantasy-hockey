@@ -45,6 +45,20 @@ python -m basketball.rank_gap draft
 python -m basketball.rank_gap score
 ```
 
+## More ranking sources and historical seasons
+
+The [expanded data catalog](BASKETBALL_DATA_SOURCES.md) prepares 12 historical
+points boards across six seasons, adding 2017-18 and 2018-19 plus RotoWire
+comparisons. It also preserves current Rotoworld, RotoWire and FantraxHQ boards.
+Raw bytes, dates, hashes, partial coverage and unresolved identities are recorded;
+revised/category sources stay outside historical points inputs. These are new
+data inputs, with unscored draft compatibility checks, not new strategy results.
+
+```sh
+python -m basketball.ranking_library collect
+python -m basketball.ranking_library build
+```
+
 ## Player and NBA team ban list
 
 Ban a player by name or ESPN player ID, or ban an entire NBA team by name,
