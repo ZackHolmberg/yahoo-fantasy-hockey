@@ -18,6 +18,8 @@ python -m basketball report
 
 Live basketball drafting uses ESPN's WebSocket API: `draft pick PLAYER --execute`, `draft queue PLAYER --execute`, or `draft watch --execute`. See [the basketball guide](docs/BASKETBALL.md) for commands, authentication, practice setup, recovery and verification limits. Hockey commands and state remain independent.
 
+An opt-in expert/market timing advisor is available with `python -m basketball --fetch draft hybrid --source rotowire --verify` at our turn. It compares two-pick combinations without moving far down the expert board. Across three retrospective seasons, timing added +0.27% over RotoWire alone and +0.47% over publisher consensus; it did not improve every year. This is read-only and does not change automatic drafting. See [the hybrid results and usage](docs/BASKETBALL_HYBRID_RESULTS.md).
+
 ## New machine setup (about 2 minutes)
 
 ```sh

@@ -60,7 +60,7 @@ class Client:
         players, offset = [], 0
         while True:
             data = self.request(self.league + "?view=kona_player_info", filters={"players": {
-                "limit": 500, "offset": offset, "sortPercOwned": {"sortPriority": 1, "sortAsc": False},
+                "limit": 500, "offset": offset, "sortDraftRanks": {"sortPriority": 1, "sortAsc": True, "value": "STANDARD"},
                 "filterStatsForExternalIds": {"value": [self.cfg["season"], self.cfg["season"] - 1, self.cfg["season"] - 2]},
                 "filterStatsForSourceIds": {"value": [0, 1]}, "filterStatsForSplitTypeIds": {"value": [0]}}})
             page = data.get("players")
@@ -117,11 +117,13 @@ def player(entry, owner=None, slot=None):
               if s.get("scoringPeriodId", 0) == 0 and s.get("statSplitTypeId", 0) == 0]
     eligible = [SLOTS[s] for s in p.get("eligibleSlots", []) if s in SLOTS]
     own = pool.get("onTeamId", owner or 0)
+    draft_rank = ((p.get("draftRanksByRankType") or {}).get("STANDARD") or {}).get("rank")
     return {"id": int(p["id"]), "name": p["fullName"], "team": str(p.get("proTeamId", 0)),
             "primary": SLOTS.get(p.get("defaultPositionId", 0) - 1, "?"), "eligible": eligible,
             "owner": int(own or 0), "slot": SLOTS.get(entry.get("lineupSlotId"), slot),
             "status": p.get("injuryStatus", "ACTIVE"), "undroppable": p.get("isUndroppable", False),
             "active": p.get("active"),
+            "draft_rank": draft_rank if type(draft_rank) is int and 0 < draft_rank < 999 else None,
             "availability": pool.get("status", "ONTEAM" if own else "FREEAGENT"),
             "adp": (p.get("ownership") or {}).get("averageDraftPosition"),
             "auction_value": (p.get("ownership") or {}).get("auctionValueAverage"),
@@ -141,6 +143,8 @@ def normalize(cfg, league, pool, season):
             p = player(entry, t["id"])
             if p["id"] in by and not p["splits"]:
                 p["splits"] = by[p["id"]]["splits"]
+            if p["id"] in by and p["draft_rank"] is None:
+                p["draft_rank"] = by[p["id"]]["draft_rank"]
             p["owner"] = t["id"]
             by[p["id"]] = p
             roster.append(p["id"])

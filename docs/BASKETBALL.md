@@ -497,6 +497,19 @@ termination before removing that empty directory.
 
 ## Verification limits and tests
 
+### Expert quality with market timing
+
+At our turn, `python -m basketball --fetch draft hybrid --source rotowire --verify`
+compares taking the best expert player now with taking another strong player and
+seeking the favorite next turn. `--source consensus`, `rotoworld` and `fantrax`
+are also available; `--slot N` supplies a known slot if ESPN does not expose one.
+It syncs completed picks from the snapshot into local tracking, applies bans and
+roster constraints, and displays public ranks and timing scenarios. Current
+expert source files must already be collected. `--verify` checks availability;
+otherwise output marks it unchecked. The command is read-only on ESPN and cannot
+submit picks. Automatic watch is unchanged. See [the protocol, paired results
+and limitations](BASKETBALL_HYBRID_RESULTS.md).
+
 League settings and projection columns were verified in the signed-in ESPN
 website. The direct draft API completed a 16-team practice draft: 11 picks were
 confirmed through the API and one was auto-picked by ESPN after a clock guard

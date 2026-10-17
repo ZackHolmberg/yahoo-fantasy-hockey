@@ -84,6 +84,11 @@ def parser():
     best.add_argument("--limit", type=int, default=20)
     best.add_argument("--pick", type=int)
     best.add_argument("--slot", type=int)
+    hybrid = ds.add_parser("hybrid", help="Read-only expert quality / market timing advisor")
+    hybrid.add_argument("--source", choices=("rotowire", "rotoworld", "fantrax", "consensus"), default="consensus")
+    hybrid.add_argument("--slot", type=int)
+    hybrid.add_argument("--pick", type=int)
+    hybrid.add_argument("--verify", action="store_true", help="Check current NBA availability before recommending")
     ds.add_parser("sync")
     ds.add_parser("reset")
     ds.add_parser("status", help="Read live WebSocket draft state and pending command")
@@ -397,6 +402,10 @@ def run(args):
                             print(json.dumps(draft_action(model, "pick", candidate["id"], execute=True)), flush=True)
                 time.sleep(args.seconds)
         with run_lock(cfg):
+            if args.action == "hybrid":
+                from .draft_advisor import board as hybrid_board
+                drafting.sync(model)
+                return hybrid_board(model, args.source, args.slot, args.pick, verify=args.verify)
             if args.action == "best":
                 return {**bans.board(model, args.limit, args.pick, args.slot), "availability_checked": False,
                         "availability_instruction": "Use draft availability PLAYER; every executed pick, queue or bid verifies current sources."}
