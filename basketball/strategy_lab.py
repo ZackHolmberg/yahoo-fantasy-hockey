@@ -24,6 +24,18 @@ STRATEGIES = ("prior_total", "history_blend", "recent_gate", "per_game", "durabi
               "rank_blend", "risk_blend", "roster_fit", "market_patience")
 DEVELOP = (2023, 2024, 2025)
 TEST = 2026
+TEAM_NAMES = ("Atlanta Hawks", "Boston Celtics", "Brooklyn Nets", "Charlotte Hornets", "Chicago Bulls",
+              "Cleveland Cavaliers", "Dallas Mavericks", "Denver Nuggets", "Detroit Pistons", "Golden State Warriors",
+              "Houston Rockets", "Indiana Pacers", "LA Clippers", "Los Angeles Clippers", "Los Angeles Lakers",
+              "Memphis Grizzlies", "Miami Heat", "Milwaukee Bucks", "Minnesota Timberwolves", "New Orleans Pelicans",
+              "New York Knicks", "Oklahoma City Thunder", "Orlando Magic", "Philadelphia 76ers", "Phoenix Suns",
+              "Portland Trail Blazers", "Sacramento Kings", "San Antonio Spurs", "Toronto Raptors", "Utah Jazz", "Washington Wizards")
+
+
+def profile_name(line):
+    header = re.match(r"^\d+\s+(.+?)\s*(?:" + "|".join(re.escape(t) for t in TEAM_NAMES) + r")\b",
+                      line.replace("G olden", "Golden"))
+    return key(header[1]) if header else None
 
 
 def key(name):
@@ -73,9 +85,9 @@ def nbc_data(pdf):
         for left, right in ((0, page.width/2), (page.width/2, page.width)):
             text = page.crop((left, 0, right, page.height)).extract_text() or ""
             for line in text.splitlines():
-                header = re.match(r"^\d+\s+(.+?)\s*(?:Atlanta|Boston|Brooklyn|Charlotte|Chicago|Cleveland|Dallas|Denver|Detroit|Golden State|Houston|Indiana|LA Clippers|Los Angeles|Memphis|Miami|Milwaukee|Minnesota|New Orleans|New York|Oklahoma City|Orlando|Philadelphia|Phoenix|Portland|Sacramento|San Antonio|Toronto|Utah|Washington)\b", line.replace("G olden", "Golden"))
+                header = profile_name(line)
                 if header:
-                    current = key(header[1])
+                    current = header
                 if line.startswith("PROJ "):
                     parts = line.split()
                     if not current or len(parts) < 18 or current in projections:

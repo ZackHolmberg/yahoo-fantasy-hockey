@@ -9,7 +9,7 @@ from basketball.backtest import digest, input_model
 from basketball.config import active_slots, load, read_json, write_json
 from basketball.planner import assign, legal_roster
 from basketball.strategy_lab import (STRATEGIES, choose, espn_ranks, features, grade, locked,
-                                     score, simulate, source_hashes, values)
+                                     profile_name, score, simulate, source_hashes, values)
 from test_basketball import athlete
 
 
@@ -85,6 +85,11 @@ class StrategyTests(unittest.TestCase):
         for bad in (text, text + "\n1. Duplicate, NY SF"):
             with self.assertRaises(ValueError):
                 espn_ranks(bad, 3)
+
+    def test_profile_names_with_city_names_do_not_shift_projections(self):
+        self.assertEqual(profile_name("1122 P.J. Washington Dallas Mavericks"), "pjwashington")
+        self.assertEqual(profile_name("2266 Jonathan KumingaG olden State Warriors"), "jonathankuminga")
+        self.assertEqual(profile_name("1 Brandon Boston Jr. New Orleans Pelicans"), "brandonboston")
 
     def test_locked_sources_and_inputs_reject_tampering(self):
         write_json(self.root / "input-2024.json", self.pack)
