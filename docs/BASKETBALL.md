@@ -3,6 +3,62 @@
 Run from the repository root with `python -m basketball`. Basketball has its own
 configuration and data directory; the Yahoo and ESPN hockey workflows are independent.
 
+The historical test found a retirement eligibility failure and worse fixed
+starting-nine totals than the archived ESPN comparison. The picker is not ready
+for unattended real drafting. Read [the results](BASKETBALL_BACKTEST_RESULTS.md)
+and [the frozen evaluation protocol](BASKETBALL_BACKTEST_PROTOCOL.md).
+
+## Public player research with Firecrawl
+
+```sh
+python -m basketball research "Russell Westbrook"
+python -m basketball research "Joel Embiid" --days 7 --limit 2
+python -m basketball research "Russell Westbrook" --url https://www.nba.com/news/russell-westbrook-retires-nba-after-18-seasons
+```
+
+This uses Firecrawl's general search/scrape API. Its
+[Alexandria fantasy app](https://www.firecrawl.dev/alexandria/fantasy) is for
+football and is not used for basketball rankings. No new Python dependencies
+are required. Basic requests can run without a key; set `FIRECRAWL_API_KEY` in
+the process environment for an authenticated account. Never commit a key.
+Connecting the Firecrawl chat plugin is separate from supplying an API key to
+this standalone program.
+
+Each player request searches recent team/injury status and separately searches
+retirement without a date cutoff. The default is two searches of three results,
+then at most six unique article scrapes. `--limit` bounds each search to 1-5;
+`--url` makes one scrape instead. Calls consume Firecrawl's applicable allowance;
+there is no automatic background polling or unlimited roster crawl. Failed
+requests are not automatically retried.
+
+Only public NBA.com news/player/team pages and ESPN.com/nba pages are collected.
+ESPN login cookies, private league pages and account identifiers are never sent.
+Fresh scrapes request `maxAge: 0`. Source text, provider metadata, search queries
+and UTC retrieval times are saved in unique captures under the ignored
+`basketball/data/research/` folder, with a Markdown source index. Publication dates
+remain as supplied in the article/metadata; retrieval time is not publication time.
+
+This is a research aid requiring review of identity, dates and relevance. Search
+coverage can miss an announcement; a retirement article can discuss another
+player or an old rumor. Empty/failed results never mean a player is active.
+Every capture remains **unreviewed / eligibility unknown** and has no effect on
+rankings, automatic draft picks or the frozen historical experiment. A reliable
+current-roster/retirement gate and draft strategy improvements remain required
+before unattended drafting.
+
+API reference: [search](https://docs.firecrawl.dev/api-reference/endpoint/search),
+[scrape](https://docs.firecrawl.dev/api-reference/endpoint/scrape).
+
+Live verification on October 17, 2026: the standalone command collected four
+public Westbrook pages without a key, including ESPN's retirement story and
+NBA.com's retirement retrospective. All four scrapes succeeded. The captures
+remain in local runtime data; no private ESPN session was used. This verifies
+news collection, not automated interpretation or draft selection quality.
+
+```sh
+python -m unittest discover -s tests -p test_basketball_research.py -v
+```
+
 ## This league
 
 Settings were read from the signed-in ESPN league settings page on **October 16,

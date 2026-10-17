@@ -28,6 +28,11 @@ def parser():
     sub = p.add_subparsers(dest="command", required=True)
     sub.add_parser("login", help="Sign in interactively and save ESPN-only cookies")
     sub.add_parser("fetch", help="Read all league rosters, all players, projections, ADP and NBA schedules")
+    research = sub.add_parser("research", help="Collect public NBA news through Firecrawl for manual player review")
+    research.add_argument("player")
+    research.add_argument("--limit", type=int, default=3, help="Results per search, 1-5; two searches per player")
+    research.add_argument("--days", type=int, default=30, help="Recent status window; retirement search is unrestricted")
+    research.add_argument("--url", help="Scrape one public NBA/ESPN article instead of searching")
     settings = sub.add_parser("settings", help="Show verified league rules; optionally refresh API scoring/slots")
     settings.add_argument("--sync", action="store_true")
     imp = sub.add_parser("import", help="Import the read-only basketball_read.js browser export")
@@ -219,6 +224,9 @@ def standings(model):
 
 def run(args):
     cfg = load(args.config)
+    if args.command == "research":
+        from .research import collect
+        return collect(cfg, args.player, args.limit, args.days, args.url)
     if args.command == "login":
         return login(cfg)
     if args.command == "settings":
