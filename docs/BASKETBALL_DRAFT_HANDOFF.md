@@ -17,7 +17,7 @@ switch to the older projection/VOR strategy or the experimental timing hybrid.
   `basketball/data/`. Keep the worktree available until this draft completes.
 - Authenticated league reads work. The live draft connection returned HTTP 500
   before the draft room opened; that connection is not yet verified for this
-  league. The API transport was previously rehearsed in a separate mock.
+  league. The API transport was previously rehearsed in a separate mock. The October 17 expert rehearsal (practice 2035580386) completed 11 current-source API selections after one browser pick, with zero ESPN autopicks; see BASKETBALL_EXPERT_API_REHEARSAL.md.
 
 ## Preflight and execution
 
@@ -61,7 +61,7 @@ server acknowledgement. A rookie need not have a historical projection to be a
 legal expert selection. Do not auto-accept injury risk reviews or override a ban.
 
 On disconnect or an uncertain command, reconnect and reconcile server state
-before attempting another selection. Never blindly resend, claim a failed write
+before attempting another selection. An authenticated ESPN browser or phone can displace the API connection; use the local read-only viewer to observe rather than reconnecting the ESPN room. Never blindly resend, claim a failed write
 did not execute, delete its journal, or run competing watcher processes. Existing
 turn, clock, identity, availability and receipt gates remain mandatory. If a
 fresh connection confirms the intended pick, retain its receipt and continue.

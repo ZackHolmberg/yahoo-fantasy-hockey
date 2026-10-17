@@ -514,6 +514,13 @@ The user's October 18 execution request and supervision details are recorded in
 injured players pending an existing explicit risk review. No risk acceptance is
 automatically created by the watcher.
 
+Mock rehearsals should use API selections and a visible (headed) browser, with
+Autopick verified off. ESPN disconnects the authenticated viewing tab when a
+second API draft connection joins this team. Use a read-only local receipt viewer
+for simultaneous visibility; do not reconnect the ESPN tab and displace the API.
+The [expert API rehearsal](BASKETBALL_EXPERT_API_REHEARSAL.md) completed all 12 team
+picks, including 11 API receipts after the user switched from browser selection.
+
 ### Expert quality with market timing
 
 At our turn, `python -m basketball --fetch draft hybrid --source rotowire --verify`
