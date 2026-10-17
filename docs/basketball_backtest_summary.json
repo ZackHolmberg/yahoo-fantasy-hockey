@@ -1,0 +1,205 @@
+{
+  "decision_sha256": "44964111691046cfbc262557a4b3337726ba7a02e1955024e1caae80ab0a36bb",
+  "strategy_commit": "2c349c156a8b82825e0ca241b0f66501751b605f",
+  "scope": "history-fallback chronological holdout; season-total proxies only",
+  "summary": [
+    {
+      "season": 2020,
+      "comparison": "prior_points",
+      "pairs": 96,
+      "model_points": 19370.3,
+      "baseline_points": 17723.3,
+      "mean_gain_pct": 10.76,
+      "win_rate": 0.781,
+      "starting_nine_gain_pct": 15.98,
+      "model_zero_games_per_team": 0.29,
+      "baseline_zero_games_per_team": 0.46
+    },
+    {
+      "season": 2023,
+      "comparison": "espn_archive_hybrid",
+      "pairs": 96,
+      "model_points": 25826.3,
+      "baseline_points": 25082.1,
+      "mean_gain_pct": 3.09,
+      "win_rate": 0.76,
+      "starting_nine_gain_pct": -2.23,
+      "model_zero_games_per_team": 0,
+      "baseline_zero_games_per_team": 0
+    },
+    {
+      "season": 2023,
+      "comparison": "prior_points",
+      "pairs": 96,
+      "model_points": 25826.3,
+      "baseline_points": 21858.3,
+      "mean_gain_pct": 19.26,
+      "win_rate": 0.958,
+      "starting_nine_gain_pct": 14.35,
+      "model_zero_games_per_team": 0,
+      "baseline_zero_games_per_team": 0.26
+    },
+    {
+      "season": 2024,
+      "comparison": "prior_points",
+      "pairs": 96,
+      "model_points": 23297.2,
+      "baseline_points": 23600.2,
+      "mean_gain_pct": -0.55,
+      "win_rate": 0.417,
+      "starting_nine_gain_pct": 0.91,
+      "model_zero_games_per_team": 1,
+      "baseline_zero_games_per_team": 0.12
+    },
+    {
+      "season": 2025,
+      "comparison": "espn_archive_hybrid",
+      "pairs": 96,
+      "model_points": 26290.6,
+      "baseline_points": 26582.8,
+      "mean_gain_pct": -1.07,
+      "win_rate": 0.448,
+      "starting_nine_gain_pct": -4.01,
+      "model_zero_games_per_team": 0,
+      "baseline_zero_games_per_team": 0
+    },
+    {
+      "season": 2025,
+      "comparison": "prior_points",
+      "pairs": 96,
+      "model_points": 26290.6,
+      "baseline_points": 22604.7,
+      "mean_gain_pct": 17.83,
+      "win_rate": 0.865,
+      "starting_nine_gain_pct": 15.29,
+      "model_zero_games_per_team": 0,
+      "baseline_zero_games_per_team": 0.04
+    }
+  ],
+  "unmatched_archive_names": {
+    "2023": [
+      "Paolo Banchero",
+      "Keegan Murray",
+      "Jaden Ivey",
+      "Jonathan Isaac",
+      "Jabari Smith Jr.",
+      "Tari Eason",
+      "Walker Kessler",
+      "Benedict Mathurin"
+    ],
+    "2025": [
+      "Zach Edey",
+      "Reed Sheppard",
+      "Stephon Castle",
+      "Donovan Clingan",
+      "Zaccharie Risacher"
+    ]
+  },
+  "config": {
+    "teams": 16,
+    "slots": {
+      "PG": 1,
+      "SG": 1,
+      "SF": 1,
+      "PF": 1,
+      "C": 1,
+      "G": 1,
+      "F": 1,
+      "UTIL": 2,
+      "BE": 3,
+      "IR": 2
+    },
+    "position_limits": {
+      "C": 4
+    },
+    "scoring": {
+      "FGM": 2,
+      "FGA": -1,
+      "FTM": 1,
+      "FTA": -1,
+      "3PM": 1,
+      "REB": 1,
+      "AST": 2,
+      "STL": 3,
+      "BLK": 3,
+      "TO": -2,
+      "PTS": 1
+    },
+    "format": "points"
+  },
+  "seeds": 5,
+  "source_sha256": {
+    "model.py": "f5d9261d710be638a2711e4c07ab85e1fada9c4989e642b4722be4a651fa9b5a",
+    "drafting.py": "1ccb90b48b97368d96c62c12d0073b50bf0306074c7b02f7af36b7badc84a23a",
+    "backtest.py": "048224f9295a144cdbfc0ef9f449e03fde8d16562789c5eb28d2e8c2ee4302db"
+  },
+  "input_sha256": {
+    "2020": "4e1ba997e6f28239219961f6df2e17bb9fd4050e77965ecc15fffccac9873109",
+    "2023": "e62364a2cc00f19d0e9d87683de9af8095599b35bfe3c47b4b052d2b16d0c87d",
+    "2024": "ed5aae76b8140235e056e2913947899c07afac7a6950eef5b917884fcfed3d70",
+    "2025": "377c68e18a798667b5f9535209104c938c15d8af0abbf1da7136eb088e972f2d"
+  },
+  "independently_verified_rosters": 1152,
+  "input_coverage": {
+    "2020": {
+      "pool": 658,
+      "missing_prior_positions": 0,
+      "cutoff": "2019-10-21T00:00:00-04:00",
+      "sources": {
+        "stats": [
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2018&seasontype=2&limit=1000&isqualified=false",
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2019&seasontype=2&limit=1000&isqualified=false"
+        ],
+        "positions": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2019/players?view=players_wl"
+      },
+      "archive": {}
+    },
+    "2023": {
+      "pool": 669,
+      "missing_prior_positions": 28,
+      "cutoff": "2022-10-17T00:00:00-04:00",
+      "sources": {
+        "stats": [
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2021&seasontype=2&limit=1000&isqualified=false",
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2022&seasontype=2&limit=1000&isqualified=false"
+        ],
+        "positions": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2022/players?view=players_wl"
+      },
+      "archive": {
+        "url": "https://g.espncdn.com/s/fbadraftkit/2022-2023/FBA2022CSpts.pdf",
+        "sha256": "35241275d1b731718d3936cd2c6c54222ad44d6cdb2e9a8f85c58788b8315e2a",
+        "cutoff": 200
+      }
+    },
+    "2024": {
+      "pool": 657,
+      "missing_prior_positions": 56,
+      "cutoff": "2023-10-23T00:00:00-04:00",
+      "sources": {
+        "stats": [
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2022&seasontype=2&limit=1000&isqualified=false",
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2023&seasontype=2&limit=1000&isqualified=false"
+        ],
+        "positions": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2023/players?view=players_wl"
+      },
+      "archive": {}
+    },
+    "2025": {
+      "pool": 613,
+      "missing_prior_positions": 48,
+      "cutoff": "2024-10-21T00:00:00-04:00",
+      "sources": {
+        "stats": [
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2023&seasontype=2&limit=1000&isqualified=false",
+          "https://site.web.api.espn.com/apis/common/v3/sports/basketball/nba/statistics/byathlete?season=2024&seasontype=2&limit=1000&isqualified=false"
+        ],
+        "positions": "https://lm-api-reads.fantasy.espn.com/apis/v3/games/fba/seasons/2024/players?view=players_wl"
+      },
+      "archive": {
+        "url": "https://g.espncdn.com/s/fbadraftkit/2024-25/FBA24ptsCS.pdf",
+        "sha256": "9b1a0a0d6f0af929c71cb6e291f804285c51c8e3d1b95344f07c2d2a4e136cad",
+        "cutoff": 150
+      }
+    }
+  }
+}
