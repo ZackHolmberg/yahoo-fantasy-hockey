@@ -1,0 +1,4 @@
+# The basketball planners use the standard library; timezone data is needed on Windows.
+tzdata>=2025.2
+# Optional interactive ESPN login and draft-room controls.
+playwright>=1.51,<2

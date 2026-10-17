@@ -39,7 +39,7 @@ Replies come through the same iMessage poller as Yahoo. A reply about E-numbered
 
 ## Safety
 - Verify name, team and position before any add/drop click. ESPN has the same duplicate names as Yahoo (two Elias Petterssons, two Sebastian Ahos).
-- The ESPN API reads in `espn_read.js` are read-only. Make every change through the normal ESPN pages. Never script write calls to the API.
+- `espn_read.js` is read-only. The current scheduled implementation uses `espn_bot.py` for checked ESPN transaction writes; its `--dry-run` mode previews requests. The browser-only instructions above describe the older manual fallback. See `scripts/daily_auto.py` for the current scheduled path. This runbook is for hockey; basketball uses `docs/BASKETBALL.md`.
 - If the browser tools error twice in a row, stop, log, and text the owner.
 
 ## Schedule
