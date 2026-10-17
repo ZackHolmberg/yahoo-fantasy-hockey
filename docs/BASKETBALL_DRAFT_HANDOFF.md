@@ -12,9 +12,10 @@ switch to the older projection/VOR strategy or the experimental timing hybrid.
 - ESPN verified October 17: **October 18 at 11:00 a.m. America/New_York**.
 - 16-team snake, 12 selections, 60-second clock, maximum four primary centers.
 - ESPN currently reports slot 15; re-read authoritative order on draft day.
-- Worktree: `C:/Users/chang/.codex/worktrees/espn-basketball/yahoo-fantasy-hockey`.
+- Main checkout: `C:/Users/chang/dev/yahoo-fantasy-hockey`.
 - Config: `basketball/league.json`; saved login and source library are in ignored
-  `basketball/data/`. Keep the worktree available until this draft completes.
+  `basketball/data/`. The runtime data and scheduled follow-up were moved here
+  when the feature branch was merged; use this checkout for the draft.
 - Authenticated league reads work. The live draft connection returned HTTP 500
   before the draft room opened; that connection is not yet verified for this
   league. The API transport was previously rehearsed in a separate mock. The October 17 expert rehearsal (practice 2035580386) completed 11 current-source API selections after one browser pick, with zero ESPN autopicks; see BASKETBALL_EXPERT_API_REHEARSAL.md.
@@ -45,7 +46,7 @@ action; do not clear unrelated queue entries. Every queue addition verifies
 current availability. Prefer the active watcher over spending a live turn
 building a queue. ESPN's own autopicks remain outside our local safety policy.
 
-Run the explicitly selected expert watcher from this worktree:
+Run the explicitly selected expert watcher from this main checkout:
 
 ```sh
 python -u -m basketball draft watch --transport api --strategy expert --source rotowire --execute
