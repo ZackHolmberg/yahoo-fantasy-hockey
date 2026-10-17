@@ -49,6 +49,12 @@ not ADP. No paywall bypass or Firecrawl is used.
 11. `projection_total` (2024-25 only): league-scored Rotoworld projected totals,
     with screened historical fallback for missing projections.
 
+Implementation clarification before scoring: a Rotoworld preseason rank also
+counts as published evidence for the screen and rookie universe in 2024-25.
+Its players missing ESPN's top 150 remain in ESPN's unlisted tail. Roster-fit and
+lookahead use ordinal utility `1000 - risk_rank`, not calibrated expected points.
+The rank-neighbor fallback uses the independent rank if ESPN has no listed rank.
+
 Use published rank-neighbor historical total medians (ten nearest known players)
 only to estimate players without any prior games. This is a declared rookie
 imputation, not a recovered numeric projection. Raw history ablations give
