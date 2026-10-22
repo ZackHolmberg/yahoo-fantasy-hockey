@@ -19,7 +19,9 @@
 Stdlib only. Values come from data/rankings.csv (preseason model); unranked players get no value
 and are never auto-added. Guardrails live in data/manager_rules.json.
 """
+import in_season
 import json
+from collections import Counter
 import os
 import re
 import sys
@@ -59,6 +61,9 @@ def season_left(today=None):
     return max(0.0, min(1.0, (end - max(today, start)).days / (end - start).days))
 
 
+ACTUALS = in_season.load()
+
+
 def parse(spec, rankings):
     """'Name|POS|STATUS' -> player dict with rest-of-season value."""
     parts = [p.strip() for p in spec.split("|")] + ["", "", ""]
@@ -74,6 +79,9 @@ def parse(spec, rankings):
     fpg = float(r["fpg"]) if r else 0.0
     gp = float(r["proj_gp"]) if r else 0.0
     pos = pos or (r["pos"] if r else "?")
+    if r and not ESPN:  # blend in this season's actual FP/G (in_season.py): hot/cold starts move value, with shrinkage
+        grp = "G" if pos == "G" else ("D" if pos == "D" else "F")
+        fpg = in_season.blend(fpg, f"{in_season.norm(r['name'])}|{grp}", ACTUALS)
     return {
         "name": r["name"] if r else raw, "ranked": bool(r), "pos": pos,
         "group": "G" if pos == "G" else ("D" if pos == "D" else "F"),
@@ -456,7 +464,8 @@ def next_question_number(prefix):
 def cmd_report(args, rankings, state):
     """Sync the roster from a read snippet's JSON, then print exactly what to do. Read-only apart from the sync."""
     want_json = "--json" in args
-    args = [a for a in args if a != "--json"]
+    skaters_only = "--skaters-only" in args  # week-ahead pre-set: goalies are decided daily from starter news
+    args = [a for a in args if a not in ("--json", "--skaters-only")]
     if args[:1] == ["--fetch"]:
         if not ESPN:
             sys.exit("report --fetch is ESPN-only (Yahoo's API is blocked; use scripts/yahoo_read.js)")
@@ -534,7 +543,9 @@ def cmd_report(args, rankings, state):
             fyi.append("ESPN lineup is locked mid-week; next lineup run is Sunday 21:00")
     else:
         playing = day_teams(today)
-        plan, goalies = yahoo_day_plan(mine, playing, slot_of, goalie_status(today))
+        plan, goalies = yahoo_day_plan(mine, playing, slot_of, {} if skaters_only else goalie_status(today))
+        if skaters_only:
+            plan, goalies = {n: s for n, s in plan.items() if s != "G"}, []
         # Only moves that change who plays: a playing player who should start but sits, or sits in a slot the
         # plan needs for someone else. Players without a game can stay wherever they are.
         by_name = {p["name"]: p for p in mine}
@@ -543,18 +554,20 @@ def cmd_report(args, rankings, state):
             if cur == new:
                 continue
             p = by_name[name]
-            out = [o for o, s in slot_of.items() if s == new and o not in plan and o in by_name]
-            # the occupant to move out: someone in that slot type who isn't in today's plan
-            vacate = f"; move {out[0]} to BN" if out and cur in ("BN", "") else ""
             plan_json["lineup"][name] = new
-            if vacate:
-                plan_json["lineup"].setdefault(out[0], "BN")
-            actions.append(f"LINEUP {today}: {name} ({p['pos']}, {p['team']}, FP/G {p['fpg']:.2f}) {cur} -> {new}{vacate}")
+            actions.append(f"LINEUP {today}: {name} ({p['pos']}, {p['team']}, FP/G {p['fpg']:.2f}) {cur} -> {new}")
+        # players with no game stay in their slots, so a position can end up over capacity: bench the extras
+        for slot, seats in Counter(YAHOO_SLOTS).items():
+            stay = [o for o, s in slot_of.items() if s == slot and o in by_name and o not in plan]
+            over = len(stay) + sum(1 for s in plan.values() if s == slot) - seats
+            for o in stay[:max(0, over)]:
+                plan_json["lineup"].setdefault(o, "BN")
+                actions.append(f"LINEUP {today}: {o} {slot} -> BN (makes room)")
         if goalies:
             st = lambda g: {None: "not listed as today's starter", "": "listed, unconfirmed"}.get(g["start"]) or g["start"].lower()
             fyi.append(f"Goalie: {goalies[0]['name']} ({st(goalies[0])} on DailyFaceoff)"
                        + ("; others playing: " + ", ".join(f"{g['name']} ({st(g)})" for g in goalies[1:]) if goalies[1:] else ""))
-        else:
+        elif not skaters_only:
             fyi.append("No goalie of ours plays today")
 
     for name in activate:  # off IR into the lineup slot the plan gave him, else the bench

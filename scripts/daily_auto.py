@@ -95,7 +95,26 @@ def trade_ideas(league):
             for i in ideas[:2]]
 
 
+def preset_week():
+    """Monday morning: pre-set the skater lineups for the rest of the week (goalies and re-checks stay daily)."""
+    if datetime.now().weekday() != 0 or (sys.argv[2] if len(sys.argv) > 2 else "morning") != "morning":
+        return []
+    r = run([str(REPO / ".venv/bin/python"), "yahoo_bot.py", "week"], timeout=1800)
+    if "RESULT_JSON " not in r.stdout:
+        return ["Couldn't pre-set the week's lineups; the daily runs will still set each day."]
+    res = json.loads(r.stdout.split("RESULT_JSON ", 1)[1])
+    out = [f"Pre-set skaters for the rest of the week ({len(res['did'])} change{'s' * (len(res['did']) != 1)}); goalies are set daily."]
+    if res["skipped"]:
+        out.append("Couldn't pre-set: " + "; ".join(res["skipped"])[:200] + ".")
+    return out
+
+
 def yahoo():
+    try:  # this season's actual FP feed the valuations (manage.py blends them into the projections)
+        import in_season
+        in_season.refresh()
+    except Exception as e:
+        print(f"in_season refresh failed (using last data): {e}", file=sys.stderr)
     r = run([str(REPO / ".venv/bin/python"), "yahoo_bot.py", "apply"], timeout=900)
     if "RESULT_JSON " not in r.stdout:
         err = (r.stdout + r.stderr).strip().splitlines()[-1:] or ["unknown error"]
@@ -120,6 +139,7 @@ def yahoo():
         facts.append("Couldn't do: " + "; ".join(res["skipped"]) + ".")
     if res.get("left_after"):
         facts.append("Re-check still shows work left; I'll retry next run.")
+    facts += preset_week()
     facts += trade_ideas("yahoo")
     summary = " ".join(facts) or "Quiet day: lineup already right, no moves."
     log_line("yahoo", "Auto run: " + summary)

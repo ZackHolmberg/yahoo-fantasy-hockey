@@ -41,7 +41,7 @@ and output what they want as JSON. You never decide moves yourself. Output exact
  "position": "position wanted for the pickup (F, D, G, C, LW, RW) or empty for the dropped player's",
  "only_if_better": true if the move should only happen when a free agent is better than the dropped player,
  "drop_least": true if the owner wants a roster spot opened (or a player activated off IR) and leaves WHO to drop to
-   the bot ("drop whoever brings the least", "you decide who to drop"), with no player named,
+   the bot (with "position" set when they want a pickup at a position) ("drop whoever brings the least", "you decide who to drop"), with no player named,
  "give": [our players offered in a trade], "get": [players wanted from the other team],
  "other_team": "the other team as written (e.g. T4, Thumb, 2, OSG) or empty",
  "question": "the owner's question restated in one line, or empty"}
@@ -69,6 +69,8 @@ open: E4 add Joel Hofer drop Brandon Bussi | msg: "keep Demidov on the bench unl
 {"league":"unknown","intent":"move","refs":[],"drop":["Ivan Demidov"],"add":[],"position":"","only_if_better":true,"give":[],"get":[],"other_team":"","question":""}
 recent log: Bowen Byram is healthy but in IR+: activating needs a roster spot (drop someone?) | msg: "Yes open a spot, drop whoever brings the least to our lineup"
 {"league":"yahoo","intent":"move","refs":[],"drop":[],"add":[],"position":"","only_if_better":false,"drop_least":true,"give":[],"get":[],"other_team":"","question":""}
+msg: "We have an empty centre spot, fill it, dropping a bench player as need be"
+{"league":"yahoo","intent":"move","refs":[],"drop":[],"add":[],"position":"C","only_if_better":false,"drop_least":true,"give":[],"get":[],"other_team":"","question":""}
 msg: "why is bussi starting over wedgewood in espn"
 {"league":"espn","intent":"question","refs":[],"give":[],"get":[],"other_team":"","question":"Why is Bussi starting over Wedgewood?"}"""
 
@@ -162,6 +164,43 @@ def league_plan(league):
     return json.loads(r.stdout.split("RESULT_JSON ", 1)[1].strip().splitlines()[0])["plan"]
 
 
+def position_of(intent):
+    return str(intent.get("position") or "").upper().strip()
+
+
+def fill(league, intent, text):
+    """"Fill the empty centre spot, dropping a bench player if need be": a pure add of the named or best free agent at
+    the position; only if Yahoo has no open spot and the owner allowed a drop does it swap out the least costly player."""
+    if league != "yahoo":
+        return league, "ESPN: plain pickups aren't supported yet; tell me who to drop and I'll queue the swap for Monday."
+    adds = [a for a in intent.get("add") or [] if isinstance(a, str) and a.strip()]
+    pos = position_of(intent)
+    plan = league_plan("yahoo")
+    if adds:
+        a = moves.find(adds[0], plan["fas"])
+    else:
+        group = moves.POS_GROUP.get(pos)
+        a = next((f for f in plan["fas"] if (pos in f["pos"].split(",") if pos in ("C", "LW", "RW") else f["group"] == group)), None)
+    if not a:
+        return league, f"I couldn't find a ranked, healthy free agent for {adds[0] if adds else pos or 'that'}."
+    r = bot("yahoo", "add", a["name"], *(["--dry-run"] if DRY else []), timeout=600)
+    res = json.loads(r.stdout.split("RESULT_JSON ", 1)[1]) if "RESULT_JSON " in r.stdout else {"did": [], "skipped": [r.stderr[-200:] or "bot failed"]}
+    if not res["did"] and "no-drop add" in " ".join(res["skipped"]) and intent.get("drop_least"):
+        low = next((p for p in json.loads(run([sys.executable, "manage.py", "spare"]).stdout)
+                    if p["name"] != a["name"]), None)
+        if low:
+            r = bot("yahoo", "swap", a["name"], low["name"], *(["--dry-run"] if DRY else []), timeout=600)
+            res = json.loads(r.stdout.split("RESULT_JSON ", 1)[1]) if "RESULT_JSON " in r.stdout else {"did": [], "skipped": [r.stderr[-200:] or "bot failed"]}
+    if res["did"]:
+        r2 = bot("yahoo", "apply", *(["--dry-run"] if DRY else []), timeout=900)  # slot him into the lineup
+        placed = json.loads(r2.stdout.split("RESULT_JSON ", 1)[1])["did"] if "RESULT_JSON " in r2.stdout else []
+        msg = f"Done: {'; '.join(res['did'])} ({a['pos']}, {a['team']}, ROS {a['ros']:.0f})." + (" Lineup: " + "; ".join(placed) + "." if placed else "")
+    else:
+        msg = f"Couldn't add {a['name']}: " + "; ".join(res["skipped"])[:250]
+    log(league, f"Owner asked to fill a spot: {text[:200]} | {msg}")
+    return league, msg
+
+
 def spare(league, text):
     """"Open a spot, you pick who goes": let the report activate anyone waiting in IR if a spot is already open;
     else name the player whose loss costs the lineup least (no add: this code has no pure drop yet)."""
@@ -187,6 +226,8 @@ def move(intent, text, league):
     """Owner-directed add/drops: the owner asking is the approval; moves.pick chooses the player."""
     drops = [d for d in intent.get("drop") or [] if isinstance(d, str) and d.strip()]
     adds = [a for a in intent.get("add") or [] if isinstance(a, str) and a.strip()]
+    if not drops and (adds or position_of(intent)):
+        return fill(league if league in ("yahoo", "espn") else "yahoo", intent, text)
     if not drops and intent.get("drop_least"):
         return spare(league if league in ("yahoo", "espn") else "yahoo", text)
     if not drops:
